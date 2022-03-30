@@ -1,0 +1,26 @@
+{
+  "name": "curio-sales-bot",
+  "version": "1.0.0",
+  "description": "Curio sales bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crypt0biwan/curio-sales-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crypt0biwan/curio-sales-bot/issues"
+  },
+  "homepage": "https://github.com/crypt0biwan/curio-sales-bot#readme",
+  "dependencies": {
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "ethers": "^5.6.2",
+    "web3": "^1.7.1"
+  }
+}
