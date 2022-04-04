@@ -57,7 +57,7 @@ function watchForTransfers(transferHandler) {
 	});
 
 	provider.on(curioEventFilter, (log) => {
-		const transfer = handleCurioTransfer(log, transferHandler);
+		const transfer = handleCurioTransfer(log);
 		if (transfer.qty > 0) {
 			transferHandler(transfer);
 		}
