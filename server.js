@@ -1,11 +1,14 @@
 const fs = require('fs')
-const { Client, Collection, Intents } = require('discord.js')
+const { Client, Collection, Intents, WebhookClient } = require('discord.js')
 const ethers = require('ethers')
-const Web3 = require('web3')
 const abi = require('./abis/WyvernExchangeWithBulkCancellations.json')
+const { watchForTransfers } = require('./utils/watcher.js')
 
 require('dotenv').config()
 
+const { DISCORD_ID, DISCORD_TOKEN, INFURA_PROJECT_ID, INFURA_SECRET } = process.env
+
+/*
 const { OPENSEA_CONTRACT, DISCORD_TOKEN, DISCORD_PREFIX, DISCORD_CHANNEL, CURIO_WRAPPER_CONTRACT, ETH_NODE_URL } = process.env
 
 const bot = new Client({
@@ -99,7 +102,16 @@ const listen = () => {
                 // channel.send(`Sale for ${ethPrice} ETH`)
             })
     } catch(e) {
-        console.log(JSON.stringify(e))
+        console.error(e)
     }
-
 }
+
+*/
+
+const webhookClient = new WebhookClient({id: DISCORD_ID, token: DISCORD_TOKEN});
+
+const postToWebhook = ({qty, card, totalPrice}) => {
+	webhookClient.send(`Found curio sale: ${qty}x CRO${card} sold for ${totalPrice}`).catch(console.error);
+};
+
+watchForTransfers(postToWebhook);
