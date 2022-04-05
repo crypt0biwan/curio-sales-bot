@@ -2,6 +2,8 @@ const { handleCurioTransfer, getEventsFromBlock } = require("../utils/watcher.js
 const assert = require("assert");
 
 describe("Watcher", function () {
+    this.timeout(10_000);
+
 	describe("handleCurioTransfer()", function () {
 		it("should correctly find the single card 10 transfer in block 14516246", async function () {
 			const events = await getEventsFromBlock(14516246);

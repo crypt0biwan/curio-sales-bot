@@ -17,6 +17,8 @@ const CURIO_WRAPPER_CONTRACT = "0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313";
 const curioAbi = require("../abis/CurioERC1155Wrapper.json");
 const curioContract = new Ethers.Contract(CURIO_WRAPPER_CONTRACT, curioAbi, provider);
 
+
+
 const curioEventFilter = {
 	address: CURIO_WRAPPER_CONTRACT,
 	topics: [
@@ -29,8 +31,8 @@ async function getEventsFromBlock(blockNum) {
 	return await curioContract.queryFilter(curioEventFilter, fromBlock=blockNum, toBlock=blockNum);
 }
 
-async function handleCurioTransfer(curioLog) {
-	txReceipt = await curioLog.getTransactionReceipt();
+async function handleCurioTransfer(tx) {
+	txReceipt = await provider.getTransactionReceipt(tx.transactionHash);
 	wyvernLogRaw = txReceipt.logs.filter(x => {
 		return [OPENSEA_CONTRACT.toLowerCase(), OLD_OPENSEA_CONTRACT.toLowerCase()].includes(x.address.toLowerCase())
 	});
@@ -40,12 +42,22 @@ async function handleCurioTransfer(curioLog) {
 	}
 
 	// todo- Handle the scenario where a curio card was traded for erc20 instead of ethereum/weth... (currently unhandled, will show as a strange price)
-	wyvernLog = wyvernContract.interface.parseLog(wyvernLogRaw[0])
+	wyvernLog = wyvernContract.interface.parseLog(wyvernLogRaw[0]);
 	totalPrice = Ethers.utils.formatEther(wyvernLog.args.price.toBigInt());
+
+	curioLogRaw = txReceipt.logs.filter(x => {
+		return [CURIO_WRAPPER_CONTRACT.toLowerCase()].includes(x.address.toLowerCase())
+	});
+	if (curioLogRaw.length === 0) {
+		console.error("unable to parse curio transfer from tx receipt!");
+		return { qty: 0, card: 0, totalPrice: 0};
+	}
+
+	curioLog = curioContract.interface.parseLog(curioLogRaw[0]);
 
 	// which card was transferred?
 	qty = curioLog.args._value.toNumber();
-	card = curioLog.args._id.toNumber()
+	card = curioLog.args._id.toNumber();
 
 	console.log(`Found curio sale: ${qty}x CRO${card} sold for ${totalPrice}`);
 	return { qty, card, totalPrice };
@@ -56,8 +68,8 @@ function watchForTransfers(transferHandler) {
 		console.log("new block: " + blockNumber)
 	});
 
-	provider.on(curioEventFilter, (log) => {
-		const transfer = handleCurioTransfer(log);
+	provider.on(curioEventFilter, async (log) => {
+		const transfer = await handleCurioTransfer(log);
 		if (transfer.qty > 0) {
 			transferHandler(transfer);
 		}
