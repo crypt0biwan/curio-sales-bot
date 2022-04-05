@@ -13,7 +13,7 @@ const OLD_OPENSEA_CONTRACT = "0x7be8076f4ea4a4ad08075c2508e481d6c946d12b";
 const wyvernAbi = require("../abis/WyvernExchangeWithBulkCancellations.json");
 const wyvernContract = new Ethers.Contract(OPENSEA_CONTRACT, wyvernAbi, provider);
 
-const CURIO_WRAPPER_CONTRACT = "0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313";
+const CURIO_WRAPPER_CONTRACT = "0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313";
 const curioAbi = require("../abis/CurioERC1155Wrapper.json");
 const curioContract = new Ethers.Contract(CURIO_WRAPPER_CONTRACT, curioAbi, provider);
 
@@ -34,7 +34,7 @@ async function getEventsFromBlock(blockNum) {
 async function handleCurioTransfer(tx) {
 	txReceipt = await provider.getTransactionReceipt(tx.transactionHash);
 	wyvernLogRaw = txReceipt.logs.filter(x => {
-		return [OPENSEA_CONTRACT.toLowerCase(), OLD_OPENSEA_CONTRACT.toLowerCase()].includes(x.address.toLowerCase())
+		return [OPENSEA_CONTRACT, OLD_OPENSEA_CONTRACT].includes(x.address.toLowerCase())
 	});
 	if (wyvernLogRaw.length === 0) {
 		console.log("found transfer, but no associated wyvern sale");
@@ -46,7 +46,7 @@ async function handleCurioTransfer(tx) {
 	totalPrice = Ethers.utils.formatEther(wyvernLog.args.price.toBigInt());
 
 	curioLogRaw = txReceipt.logs.filter(x => {
-		return [CURIO_WRAPPER_CONTRACT.toLowerCase()].includes(x.address.toLowerCase())
+		return [CURIO_WRAPPER_CONTRACT].includes(x.address.toLowerCase())
 	});
 	if (curioLogRaw.length === 0) {
 		console.error("unable to parse curio transfer from tx receipt!");
