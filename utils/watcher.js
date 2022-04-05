@@ -58,10 +58,8 @@ async function handleCurioTransfer(tx) {
 	// which card was transferred?
 	qty = curioLog.args._value.toNumber();
 	card = curioLog.args._id.toNumber();
-	// TODO buyer addy
-	buyer = '0x0000000000000000000000000000000000000000'
-	// TODO seller addy
-	seller = '0x0000000000000000000000000000000000000000'
+	buyer = curioLog.args._to.toLowerCase()
+	seller = curioLog.args._from.toLowerCase()
 
 	console.log(`Found curio sale: ${qty}x CRO${card} sold for ${totalPrice}`);
 	return { qty, card, totalPrice, buyer, seller };

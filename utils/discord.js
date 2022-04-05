@@ -16,10 +16,8 @@ const formatMessage = ({ qty, card, totalPrice, buyer, seller }) => {
 					// url: 'https://curio.cards',
 					icon_url: 'https://www.gitbook.com/cdn-cgi/image/width=40,height=40,fit=contain,dpr=1,format=auto/https%3A%2F%2F1770801706-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fcollections%252FNyUEXr2B4FBefalwZTqb%252Ficon%252FAbV65JUMTbXuuBMe9I0M%252Favatar2.png%3Falt%3Dmedia%26token%3D99ceb163-5bff-440c-a5b4-83ac5ffc4d1a'
 				},
-				title: `${cardSold} has been sold`,
-				description: `Buyer: **${formatETHaddress(buyer)}**
-				Seller: **${formatETHaddress(seller)}**
-				---------------------------------`,
+				title: `Curio ${card} has been sold`,
+				description: `Buyer: **${formatETHaddress(buyer)}**\nSeller: **${formatETHaddress(seller)}**\n---------------------------------`,
 				url: `https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${card}`,
 				thumbnail: {
 					url: `https://ipfs.io/ipfs/${imgHash}`
