@@ -33,7 +33,7 @@ const formatMessage = ({ qty, card, totalPrice, buyer, seller }) => {
 					},
 					{
 						name: 'ETH',
-						value: totalPrice.toFixed(2),
+						value: parseFloat(totalPrice).toFixed(2),
 						inline: true,
 					},
 					{
