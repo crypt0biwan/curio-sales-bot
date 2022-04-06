@@ -17,6 +17,10 @@ const CURIO_WRAPPER_CONTRACT = "0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313";
 const curioAbi = require("../abis/CurioERC1155Wrapper.json");
 const curioContract = new Ethers.Contract(CURIO_WRAPPER_CONTRACT, curioAbi, provider);
 
+const LOOKSRARE_CONTRACT = "0x59728544B08AB483533076417FbBB2fD0B17CE3a"
+const looksAbi = require("../abis/LooksRare.json");
+// const looksContract = new Ethers.Contract(LOOKSRARE_CONTRACT, looksAbi, provider);
+
 
 
 const curioEventFilter = {
