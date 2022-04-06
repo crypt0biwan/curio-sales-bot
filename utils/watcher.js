@@ -21,7 +21,13 @@ const LOOKSRARE_CONTRACT = "0x59728544B08AB483533076417FbBB2fD0B17CE3a"
 const looksAbi = require("../abis/LooksRare.json");
 // const looksContract = new Ethers.Contract(LOOKSRARE_CONTRACT, looksAbi, provider);
 
+const UNISWAP_USDC_ETH_LP_CONTRACT = "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc";
+const uniswapAbi = require("../abis/Uniswap_USDC_ETH_LP.json");
+const uniswapContract = async () => await new Ethers.Contract(UNISWAP_USDC_ETH_LP_CONTRACT, uniswapAbi, provider);
 
+const getEthUsdPrice = async () => await uniswapContract()
+    .then(contract => contract.getReserves())
+    .then(reserves => Number(reserves._reserve0) / Number(reserves._reserve1) * 1e12); // times 10^12 because usdc only has 6 decimals
 
 const curioEventFilter = {
 	address: CURIO_WRAPPER_CONTRACT,
@@ -65,8 +71,10 @@ async function handleCurioTransfer(tx) {
 	buyer = curioLog.args._to.toLowerCase()
 	seller = curioLog.args._from.toLowerCase()
 
+	let ethPrice = await getEthUsdPrice()
+
 	console.log(`Found curio sale: ${qty}x CRO${card} sold for ${totalPrice}`);
-	return { qty, card, totalPrice, buyer, seller };
+	return { qty, card, totalPrice, buyer, seller, ethPrice };
 }
 
 function watchForTransfers(transferHandler) {

@@ -1,11 +1,14 @@
 const COLORS = require('./colors')
 const IMAGES = require('./cards')
+const { getUsername } = require('./opensea')
 
-const formatETHaddress = address => address.slice(0, 5) + '...' + address.slice(address.length-3, address.length)
+const formatETHaddress = async address => address.slice(0, 5) + '...' + address.slice(address.length-3, address.length)
 
-const formatMessage = ({ qty, card, totalPrice, buyer, seller }) => {
+const formatMessage = async ({ qty, card, totalPrice, buyer, seller, ethPrice }) => {
 	const cardSold = `CRO${card}`
 	const imgHash = IMAGES[cardSold]
+	const buyerUsername = await getUsername(buyer)
+	const sellerUsername = await getUsername(seller)
 
 	return {
 		username: 'CurioCard Sales',
@@ -17,7 +20,7 @@ const formatMessage = ({ qty, card, totalPrice, buyer, seller }) => {
 					icon_url: 'https://www.gitbook.com/cdn-cgi/image/width=40,height=40,fit=contain,dpr=1,format=auto/https%3A%2F%2F1770801706-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fcollections%252FNyUEXr2B4FBefalwZTqb%252Ficon%252FAbV65JUMTbXuuBMe9I0M%252Favatar2.png%3Falt%3Dmedia%26token%3D99ceb163-5bff-440c-a5b4-83ac5ffc4d1a'
 				},
 				title: `Curio ${card} has been sold`,
-				description: `Buyer: **${formatETHaddress(buyer)}**\nSeller: **${formatETHaddress(seller)}**\n---------------------------------`,
+				description: `Buyer: **${buyerUsername}**\nSeller: **${sellerUsername}**\n---------------------------------`,
 				url: `https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${card}`,
 				thumbnail: {
 					url: `https://ipfs.io/ipfs/${imgHash}`
@@ -36,8 +39,7 @@ const formatMessage = ({ qty, card, totalPrice, buyer, seller }) => {
 					},
 					{
 						name: 'USD',
-						// TODO USD value? 
-						value: 'xxx',
+						value: parseFloat(totalPrice * ethPrice).toFixed(2),
 						inline: true,
 					}
 				],

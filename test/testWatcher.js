@@ -1,4 +1,6 @@
 const { handleCurioTransfer, getEventsFromBlock } = require("../utils/watcher.js");
+const { getUsername } = require("../utils/opensea");
+
 const assert = require("assert");
 
 describe("Watcher", function () {
@@ -23,6 +25,14 @@ describe("Watcher", function () {
 			assert.equal(transfer.qty, 5);
 			assert.equal(transfer.card, 11);
 			assert.equal(transfer.totalPrice, 2.0);
+		});
+	});
+
+	describe("getOpenseaUsername()", function () {
+		it("should correctly find the username corresponding to ETH address 0x49468f702436d1e590895ffa7155bcd393ce52ae", async function () {
+			const username = await getUsername("0x49468f702436d1e590895ffa7155bcd393ce52ae");
+
+			assert.equal(username, "crypt0biwan");
 		});
 	});
 });
