@@ -34,5 +34,11 @@ describe("Watcher", function () {
 
 			assert.equal(username, "crypt0biwan");
 		});
+
+		it("should correctly return a formatted ETH address when there's no username available", async function () {
+			const username = await getUsername("0xbebf173c83ad4c877c04592de0c38567abf66526");
+
+			assert.equal(username, "0xbeb...526");
+		});
 	});
 });

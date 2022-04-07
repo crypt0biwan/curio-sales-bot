@@ -9,7 +9,11 @@ const getUsername = async address => {
             url: `https://api.opensea.io/user/${address}`
           })
         .then(function (response) {
-            resolve(response.data.account.user.username)
+            if(response.data.username != null) {
+                resolve(response.data.account.user.username)
+            } else {
+                resolve(formatETHaddress(address))
+            }
         })
         .catch(function (error) {
             console.log(error);
