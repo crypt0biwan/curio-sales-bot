@@ -12,6 +12,7 @@ const OPENSEA_CONTRACT = "0x7f268357a8c2552623316e2562d90e642bb538e5";
 const OLD_OPENSEA_CONTRACT = "0x7be8076f4ea4a4ad08075c2508e481d6c946d12b";
 const wyvernAbi = require("../abis/WyvernExchangeWithBulkCancellations.json");
 const wyvernContract = new Ethers.Contract(OPENSEA_CONTRACT, wyvernAbi, provider);
+const erc20TokenAbi = require("../abis/ERC20Token.json");
 
 const CURIO_WRAPPER_CONTRACT = "0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313";
 const curioAbi = require("../abis/CurioERC1155Wrapper.json");
@@ -42,22 +43,50 @@ async function getEventsFromBlock(blockNum) {
 }
 
 async function handleCurioTransfer(tx) {
-	txReceipt = await provider.getTransactionReceipt(tx.transactionHash);
-	wyvernLogRaw = txReceipt.logs.filter(x => {
+	let txReceipt = await provider.getTransactionReceipt(tx.transactionHash);
+
+	let wyvernLogRaw = txReceipt.logs.filter(x => {
 		return [OPENSEA_CONTRACT, OLD_OPENSEA_CONTRACT].includes(x.address.toLowerCase())
 	});
+
+	let totalPrice = -1
+	let token = 'ETH'
+
 	if (wyvernLogRaw.length === 0) {
 		console.log("found transfer, but no associated wyvern sale");
 		return { qty: 0, card: 0, totalPrice: 0};
 	}
 
-	// todo- Handle the scenario where a curio card was traded for erc20 instead of ethereum/weth... (currently unhandled, will show as a strange price)
-	wyvernLog = wyvernContract.interface.parseLog(wyvernLogRaw[0]);
-	totalPrice = Ethers.utils.formatEther(wyvernLog.args.price.toBigInt());
+	let wyvernLog = wyvernContract.interface.parseLog(wyvernLogRaw[0]);
 
+	// Check if related token transfers instead of a regular ETH buy
+	const tokenTransfers = txReceipt.logs.filter(x => {
+		return x.topics.includes(Ethers.utils.keccak256(Ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)')))
+	});
+
+	// TODO bundle sale (see test/testWatcher.js)
+
+	if(tokenTransfers.length) {
+		// ERC20 token buy
+
+		const tokenAddress = tokenTransfers[0].address.toLowerCase()
+		const erc20TokenContract = new Ethers.Contract(tokenAddress, erc20TokenAbi, provider);
+
+		const symbol = await erc20TokenContract.symbol()
+		const decimals = await erc20TokenContract.decimals()
+
+		token = symbol
+		totalPrice = Ethers.utils.formatUnits(wyvernLog.args.price.toBigInt(), decimals)
+	} else {
+		// regular ETH buy
+
+		totalPrice = Ethers.utils.formatEther(wyvernLog.args.price.toBigInt());
+	}
+	
 	curioLogRaw = txReceipt.logs.filter(x => {
 		return [CURIO_WRAPPER_CONTRACT].includes(x.address.toLowerCase())
 	});
+
 	if (curioLogRaw.length === 0) {
 		console.error("unable to parse curio transfer from tx receipt!");
 		return { qty: 0, card: 0, totalPrice: 0};
@@ -66,15 +95,16 @@ async function handleCurioTransfer(tx) {
 	curioLog = curioContract.interface.parseLog(curioLogRaw[0]);
 
 	// which card was transferred?
-	qty = curioLog.args._value.toNumber();
-	card = curioLog.args._id.toNumber();
-	buyer = curioLog.args._to.toLowerCase()
-	seller = curioLog.args._from.toLowerCase()
+	let qty = curioLog.args._value.toNumber();
+	let card = curioLog.args._id.toNumber();
+	let buyer = curioLog.args._to.toLowerCase()
+	let seller = curioLog.args._from.toLowerCase()
 
+	// get current ETH price
 	let ethPrice = await getEthUsdPrice()
 
 	console.log(`Found curio sale: ${qty}x CRO${card} sold for ${totalPrice}`);
-	return { qty, card, totalPrice, buyer, seller, ethPrice };
+	return { qty, card, totalPrice, buyer, seller, ethPrice, token };
 }
 
 function watchForTransfers(transferHandler) {

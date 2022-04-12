@@ -4,11 +4,31 @@ const { getUsername } = require('./opensea')
 
 const formatETHaddress = async address => address.slice(0, 5) + '...' + address.slice(address.length-3, address.length)
 
-const formatMessage = async ({ qty, card, totalPrice, buyer, seller, ethPrice }) => {
+const formatMessage = async ({ qty, card, totalPrice, buyer, seller, ethPrice, token }) => {
 	const cardSold = `CRO${card}`
 	const imgHash = IMAGES[cardSold]
 	const buyerUsername = await getUsername(buyer)
 	const sellerUsername = await getUsername(seller)
+	let fields = [
+		{
+			name: 'Quantity',
+			value: qty.toString(),
+			inline: true,
+		},
+		{
+			name: token,
+			value: parseFloat(totalPrice).toFixed(2),
+			inline: true,
+		}
+	]
+
+	if(['ETH', 'WETH'].includes(token)) {
+		fields.push({
+			name: 'USD',
+			value: parseFloat(totalPrice * ethPrice).toFixed(2),
+			inline: true,
+		})
+	}
 
 	return {
 		username: 'CurioCard Sales',
@@ -26,23 +46,7 @@ const formatMessage = async ({ qty, card, totalPrice, buyer, seller, ethPrice })
 					url: `https://ipfs.io/ipfs/${imgHash}`
 				},
 				color: COLORS.GREEN,
-				fields: [
-					{
-						name: 'Quantity',
-						value: qty.toString(),
-						inline: true,
-					},
-					{
-						name: 'ETH',
-						value: parseFloat(totalPrice).toFixed(2),
-						inline: true,
-					},
-					{
-						name: 'USD',
-						value: parseFloat(totalPrice * ethPrice).toFixed(2),
-						inline: true,
-					}
-				],
+				fields,
 				footer: {
 					text: `Nice Purchase • ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: '2-digit', day: '2-digit'})}`
 				}
