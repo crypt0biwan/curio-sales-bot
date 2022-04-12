@@ -28,6 +28,47 @@ describe("Watcher", function () {
 		});
 	});
 
+	// TODO
+	// describe("bundleSale()", function () {
+	// 	it("should return the correct numbers for a bundle sale", async function() {
+	// 		const details = await handleCurioTransfer({
+	// 			transactionHash: '0x2ff57b685cab693d9123c2b5ab0a08d5597faab5e3a76e0adc87cc93634f0ede'
+	// 		})
+
+	// 		console.log(details)
+	// 	})
+	// })
+
+	describe("handleOpenSeaSales()", function () {
+		it("should return the correct numbers for an ETH sale", async function() {
+			const details = await handleCurioTransfer({
+				transactionHash: '0xa87070b789b671f9cdc2abe85dc09b11b7548e3cdb7e9e89916c96e585f8d039'
+			})
+
+			assert.equal(details.token, "ETH");
+			assert.equal(details.totalPrice, "0.5");
+		})
+	
+		it("should return the correct numbers for a WETH sale", async function() {
+			const details = await handleCurioTransfer({
+				transactionHash: '0xe0e164a2dd03d1182e5cc8247a398a137996eee5c8be32577e88419d505a3fef'
+			})
+
+			assert.equal(details.token, "WETH");
+			assert.equal(details.totalPrice, "0.371");
+		})
+	
+		it("should return the correct numbers for an USDC sale", async function() {
+			const details = await handleCurioTransfer({
+				transactionHash: '0x020dd8b60a00665c5c0dbbfca67d2e0ed2c7d678eb641d9fa42cd8bd7f2352d4'
+			})
+
+			assert.equal(details.token, "USDC");
+			assert.equal(details.totalPrice, "27777.0");
+
+		});
+	});
+
 	describe("getOpenseaUsername()", function () {
 		it("should correctly find the username corresponding to ETH address 0x49468f702436d1e590895ffa7155bcd393ce52ae", async function () {
 			const username = await getUsername("0x49468f702436d1e590895ffa7155bcd393ce52ae");
