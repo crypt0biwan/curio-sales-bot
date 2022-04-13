@@ -70,7 +70,7 @@ describe("Watcher", function () {
 	});
 
 	describe("handleLooksRareSales()", function () {
-		it("should return the correct numbers for an ETH sale", async function() {
+		it("should return the correct numbers for a WETH sale", async function() {
 			const details = await handleCurioTransfer({
 				transactionHash: '0xe1f9c0f3b55d277da8f72a95c1e98ff023272c59acdc929e878e9c524647e429'
 			})
