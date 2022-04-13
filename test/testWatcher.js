@@ -69,6 +69,17 @@ describe("Watcher", function () {
 		});
 	});
 
+	describe("handleLooksRareSales()", function () {
+		it("should return the correct numbers for an ETH sale", async function() {
+			const details = await handleCurioTransfer({
+				transactionHash: '0xe1f9c0f3b55d277da8f72a95c1e98ff023272c59acdc929e878e9c524647e429'
+			})
+
+			assert.equal(details.token, "WETH");
+			assert.equal(details.totalPrice, "19.25");
+		})
+	})
+
 	describe("getOpenseaUsername()", function () {
 		it("should correctly find the username corresponding to ETH address 0x49468f702436d1e590895ffa7155bcd393ce52ae", async function () {
 			const username = await getUsername("0x49468f702436d1e590895ffa7155bcd393ce52ae");
