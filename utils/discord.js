@@ -5,6 +5,10 @@ const formatMessage = async ({ qty, card, totalPrice, buyer, seller, ethPrice, t
 	const buyerUsername = await getUsername(buyer)
 	const sellerUsername = await getUsername(seller)
 	const date = new Date()
+	const url = 
+		platform === 'LooksRare'
+		? `https://looksrare.org/collections/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/${card}`
+		: `https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${card}`
 
 	let fields = [
 		{
@@ -37,7 +41,7 @@ const formatMessage = async ({ qty, card, totalPrice, buyer, seller, ethPrice, t
 				},
 				title: `Curio ${card} has been sold`,
 				description: `Platform: **${platform}**\nBuyer: **${buyerUsername}**\nSeller: **${sellerUsername}**\n---------------------------------`,
-				url: `https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${card}`,
+				url,
 				thumbnail: {
 					url: `https://fafrd.github.io/curio-gallery/images/${card < 10 ? `0${card}` : card}.jpg` //`https://ipfs.io/ipfs/${imgHash}`
 				},
