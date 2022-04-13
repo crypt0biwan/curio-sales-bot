@@ -42,10 +42,6 @@ async function getEventsFromBlock(blockNum) {
 	return await curioContract.queryFilter(curioEventFilter, fromBlock=blockNum, toBlock=blockNum);
 }
 
-async function handleOpenSeaSale() {
-	
-}
-
 async function handleCurioTransfer(tx) {
 	let txReceipt = await provider.getTransactionReceipt(tx.transactionHash);
 	let totalPrice = -1
