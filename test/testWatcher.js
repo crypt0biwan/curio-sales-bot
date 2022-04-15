@@ -39,6 +39,18 @@ describe("Watcher", function () {
 	// 	})
 	// })
 
+	describe("handleNFTXSales()", function() {
+		it("should return the correct data for a NFTX sale (sushiswap)", async function () {
+			const details = await handleCurioTransfer({
+				transactionHash: '0xdc2f0dfc73e4e0f03ed1819b0ba936a35fd44c4f6812da538a681214589dc5f4'
+			})
+
+			assert.equal(details.qty, 0);
+			assert.equal(details.card, 0);
+			assert.equal(details.totalPrice, 0);
+		})
+	})
+
 	describe("handleOpenSeaSales()", function () {
 		it("should return the correct numbers for an ETH sale", async function() {
 			const details = await handleCurioTransfer({

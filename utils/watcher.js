@@ -60,7 +60,7 @@ async function handleCurioTransfer(tx) {
 	});
 
 	// early return check
-	if (wyvernLogRaw.length === 0 && looksRareLogRaw === 0) {
+	if (wyvernLogRaw.length === 0 && looksRareLogRaw.length === 0) {
 		console.log("found transfer, but no associated OpenSea or LooksRare sale");
 		return { qty: 0, card: 0, totalPrice: 0};
 	}
