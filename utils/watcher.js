@@ -42,12 +42,14 @@ async function getEventsFromBlock(blockNum) {
 	return await curioContract.queryFilter(curioEventFilter, fromBlock=blockNum, toBlock=blockNum);
 }
 
+let lastTx;
 async function handleCurioTransfer(tx) {
 	let txReceipt = await provider.getTransactionReceipt(tx.transactionHash);
-	let totalPrice = -1
+	if (lastTx === tx.transactionHash) return {}; // Transaction already seen
+	lastTx = tx.transactionHash
+	let totalPrice = 0
 	let token = 'ETH'
-	let platform = 'OpenSea'
-
+	let platforms = []
 	let wyvernLogRaw = txReceipt.logs.filter(x => {
 		return [OPENSEA_CONTRACT, OLD_OPENSEA_CONTRACT].includes(x.address.toLowerCase())
 	});
@@ -67,41 +69,42 @@ async function handleCurioTransfer(tx) {
 
 	// check for OpenSea sale
 	if(wyvernLogRaw.length) {
-		let wyvernLog = wyvernContract.interface.parseLog(wyvernLogRaw[0]);
-	
+		platforms.push("OpenSea")
 		// Check if related token transfers instead of a regular ETH buy
 		let tokenTransfers = txReceipt.logs.filter(x => {
 			return x.topics.includes(Ethers.utils.keccak256(Ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)')))
 		});
-
-		if(tokenTransfers.length) {
-			// ERC20 token buy
-	
+		// ERC20 token buy
+		let decimals;
+		if (tokenTransfers.length) {
 			const tokenAddress = tokenTransfers[0].address.toLowerCase()
 			const erc20TokenContract = new Ethers.Contract(tokenAddress, erc20TokenAbi, provider);
-	
+			
 			const symbol = await erc20TokenContract.symbol()
-			const decimals = await erc20TokenContract.decimals()
-	
+			decimals = await erc20TokenContract.decimals()
 			token = symbol
-			totalPrice = Ethers.utils.formatUnits(wyvernLog.args.price.toBigInt(), decimals)
-		} else {
-			// regular ETH buy
-	
-			totalPrice = Ethers.utils.formatEther(wyvernLog.args.price.toBigInt());
+		}
+		for (let log of wyvernLogRaw) {
+			let wyvernLog = wyvernContract.interface.parseLog(log);
+			if(tokenTransfers.length) {
+				totalPrice += parseFloat(Ethers.utils.formatUnits(wyvernLog.args.price.toBigInt(), decimals))
+			} else {
+				// regular ETH buy
+				totalPrice += parseFloat(Ethers.utils.formatEther(wyvernLog.args.price.toBigInt()));
+			}
 		}
 	}
 
 	// check for LooksRare sale
 	if(looksRareLogRaw.length) {
-		let looksLog = looksContract.interface.parseLog(looksRareLogRaw[0]);
-
-		platform = 'LooksRare'
+		platforms.push("LooksRare")
+		for (let log of looksRareLogRaw) {
+			let looksLog = looksContract.interface.parseLog(log);
+			totalPrice += parseFloat(Ethers.utils.formatEther(looksLog.args.price.toBigInt()));
+		}
 		token = 'WETH'
-		totalPrice = Ethers.utils.formatEther(looksLog.args.price.toBigInt());
 	}
 
-	// TODO bundle sale (see test/testWatcher.js)
 	
 	curioLogRaw = txReceipt.logs.filter(x => {
 		return [CURIO_WRAPPER_CONTRACT].includes(x.address.toLowerCase())
@@ -111,20 +114,33 @@ async function handleCurioTransfer(tx) {
 		console.error("unable to parse curio transfer from tx receipt!");
 		return { qty: 0, card: 0, totalPrice: 0};
 	}
-
-	curioLog = curioContract.interface.parseLog(curioLogRaw[0]);
-
-	// which card was transferred?
-	let qty = curioLog.args._value.toNumber();
-	let card = curioLog.args._id.toNumber();
-	let buyer = curioLog.args._to.toLowerCase()
-	let seller = curioLog.args._from.toLowerCase()
-
-	// get current ETH price
 	let ethPrice = await getEthUsdPrice()
 
-	console.log(`Found curio sale: ${qty}x CRO${card} sold for ${totalPrice}`);
-	return { qty, card, totalPrice, buyer, seller, ethPrice, token, platform };
+	let data = {}
+	let buyer;
+	let seller;
+	let sellers = []
+	
+	for (let log of curioLogRaw) {
+		curioLog = curioContract.interface.parseLog(log);
+		// which card was transferred?
+		let qty = curioLog.args._value.toNumber();
+		let card = curioLog.args._id.toString();
+		sellers.push(curioLog.args._from.toLowerCase())
+		buyer = curioLog.args._to.toLowerCase()
+		if (!data[card]) {
+			data[card] = 0;
+		}
+		data[card] += qty
+
+	}
+	seller = (sellers.every((val, i, arr) => val === arr[0])) ? sellers[0] : seller = "Multiple" // Check if multiple sellers, if so, seller is "Multiple" instead of a single seller
+	let sales = []
+	for ( const [card, qty] of Object.entries(data)) {
+		sales.push(`${qty}x CRO${card}`)
+	}
+	console.log(`Found curio sale: ${sales.join(", ")} sold for ${totalPrice}`)
+	return { data, totalPrice, buyer, seller, ethPrice, token, platforms };
 }
 
 function watchForTransfers(transferHandler) {
@@ -134,7 +150,7 @@ function watchForTransfers(transferHandler) {
 
 	provider.on(curioEventFilter, async (log) => {
 		const transfer = await handleCurioTransfer(log);
-		if (transfer.qty > 0) {
+		if (transfer.data) {
 			transferHandler(transfer);
 		}
 	});

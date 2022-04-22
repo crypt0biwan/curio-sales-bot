@@ -12,8 +12,7 @@ describe("Watcher", function () {
 			assert(events.length === 1);
 
 			const transfer = await handleCurioTransfer(events[0])
-			assert.equal(transfer.qty, 1);
-			assert.equal(transfer.card, 10);
+			assert.deepEqual(transfer.data, {"10": 1})
 			assert.equal(transfer.totalPrice, 0.3);
 		});
 
@@ -22,22 +21,21 @@ describe("Watcher", function () {
 			assert(events.length === 1);
 
 			const transfer = await handleCurioTransfer(events[0])
-			assert.equal(transfer.qty, 5);
-			assert.equal(transfer.card, 11);
-			assert.equal(transfer.totalPrice, 2.0);
+			assert.deepEqual(transfer.data, {"11": 5});
+			assert.equal(transfer.totalPrice, 2);
 		});
 	});
 
-	// TODO
-	// describe("bundleSale()", function () {
-	// 	it("should return the correct numbers for a bundle sale", async function() {
-	// 		const details = await handleCurioTransfer({
-	// 			transactionHash: '0x2ff57b685cab693d9123c2b5ab0a08d5597faab5e3a76e0adc87cc93634f0ede'
-	// 		})
-
-	// 		console.log(details)
-	// 	})
-	// })
+	describe("bundleSale()", function () {
+		it("should return the correct data for a bundle sale", async function() {
+			const details = await handleCurioTransfer({
+				transactionHash: '0x2ff57b685cab693d9123c2b5ab0a08d5597faab5e3a76e0adc87cc93634f0ede'
+			})
+			assert.deepEqual(details.data, {"10": 1, "12": 1, "15": 1})
+			assert.equal(details.totalPrice, 0.05)
+			assert.equal(details.token, "ETH")
+		})
+	})
 
 	describe("handleNFTXSales()", function() {
 		it("should return the correct data for a NFTX sale (sushiswap)", async function () {
