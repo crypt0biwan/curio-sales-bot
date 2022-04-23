@@ -4,7 +4,6 @@ const { getUsername } = require('./opensea')
 const formatMessage = async ({ qty, card, totalPrice, buyer, seller, ethPrice, token, platform }) => {
 	const buyerUsername = await getUsername(buyer)
 	const sellerUsername = await getUsername(seller)
-	const date = new Date()
 	const url = 
 		platform === 'LooksRare'
 		? `https://looksrare.org/collections/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/${card}`
@@ -47,9 +46,7 @@ const formatMessage = async ({ qty, card, totalPrice, buyer, seller, ethPrice, t
 				},
 				color: COLORS.GREEN,
 				fields,
-				footer: {
-					text: `${date.toLocaleDateString('en-US', {year: 'numeric', month: '2-digit', day: '2-digit'})} ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
-				}
+				timestamp: new Date()
 			}
 		]
 	}
