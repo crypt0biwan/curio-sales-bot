@@ -63,19 +63,19 @@ async function uploadMedia(twitterClient, _card) {
 	const card = parseInt(_card);
 
 	if (card <= 9) {
-		 mediaId = await twitterClient.v1.uploadMedia(`./images/0${card}.jpg`);
+		 mediaId = await twitterClient.v1.uploadMedia(`../images/0${card}.jpg`);
 	} else if (card == 21 || card == 22) {
-		 mediaId = await twitterClient.v1.uploadMedia(`./images/${card}.png`);
+		 mediaId = await twitterClient.v1.uploadMedia(`../images/${card}.png`);
 	} else if (card == 23 || card == 30) {
-		 mediaId = await twitterClient.v1.uploadMedia(`./images/${card}.gif`);
+		 mediaId = await twitterClient.v1.uploadMedia(`../images/${card}.gif`);
 	} else {
-		 mediaId = await twitterClient.v1.uploadMedia(`./images/${card}.jpg`);
+		 mediaId = await twitterClient.v1.uploadMedia(`../images/${card}.jpg`);
 	}
 
 	return mediaId;
 }
 
-const formatTwitterMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
+const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
 	const buyerUsername = await getUsername(buyer);
 	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller);
 
@@ -104,6 +104,7 @@ Sale price: 3.5 ETH ($5275.07)
 */
 
 	let twitterMessage;
+	let mediaIds = [];
 	if (cards.length == 1) {
 		let qtyString = "";
 		if (quantities[1] > 1) {
@@ -122,22 +123,17 @@ Sale price: 3.5 ETH ($5275.07)
 			platformString = `on ${platforms.join(", ")}!`;
 		}
 
-		twitterMessage = `
-${qtyString}Curio Card ${cards[0]} was sold for ${totalPrice} ${token} ${totalPriceUsdString}${platformString}
+		twitterMessage = `${qtyString}Curio Card ${cards[0]} was sold for ${totalPrice} ${token} ${totalPriceUsdString}${platformString}
 
-https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${cards[0]}
+https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${cards[0]}`;
 
-[picture]
-
-`;
+		mediaIds = [await uploadMedia(twitterClient, cards[0])];
 	} else {
 		console.warn("todo");
 		twitterMessage = "todo";
 	}
 
-	const mediaIds = uploadMedia();
-
-	return [twitterMessage, []];
+	return [twitterMessage, mediaIds];
 }
 
 module.exports = exports = {
