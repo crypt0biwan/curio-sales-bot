@@ -1,7 +1,7 @@
 const COLORS = require('./colors')
 const { getUsername } = require('./opensea')
 
-const formatMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
+const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
 	const buyerUsername = await getUsername(buyer)
 	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller)
 	
@@ -60,5 +60,5 @@ const formatMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token,
 }
 
 module.exports = exports = {
-	formatMessage,
+	formatDiscordMessage,
 }
