@@ -59,6 +59,88 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 	}
 }
 
+async function uploadMedia(twitterClient, _card) {
+	const card = parseInt(_card);
+
+	if (card <= 9) {
+		 mediaId = await twitterClient.v1.uploadMedia(`./images/0${card}.jpg`);
+	} else if (card == 21 || card == 22) {
+		 mediaId = await twitterClient.v1.uploadMedia(`./images/${card}.png`);
+	} else if (card == 23 || card == 30) {
+		 mediaId = await twitterClient.v1.uploadMedia(`./images/${card}.gif`);
+	} else {
+		 mediaId = await twitterClient.v1.uploadMedia(`./images/${card}.jpg`);
+	}
+
+	return mediaId;
+}
+
+const formatTwitterMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
+	const buyerUsername = await getUsername(buyer);
+	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller);
+
+	let quantities = [];
+	for (const [card, qty] of Object.entries(data)) {
+		quantities.push(`${qty}x CRO${card}`);
+	}
+	const cards = Object.keys(data);
+	const card = cards[0];
+
+/*
+Curio Card 5 was sold for 0.65 ETH ($1232.63) on OpenSea!
+
+https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/5
+
+[picture]
+
+Multiple curio cards were sold at once:
+1x Curio 27
+1x Curio 28
+1x Curio 29
+
+Sale price: 3.5 ETH ($5275.07)
+
+[pictures]
+*/
+
+	let twitterMessage;
+	if (cards.length == 1) {
+		let qtyString = "";
+		if (quantities[1] > 1) {
+			qtyString = `${quantities[1]}x `;
+		}
+
+		let totalPriceUsdString = "";
+		if(['ETH', 'WETH'].includes(token)) {
+			totalPriceUsdString = `($${(totalPrice * ethPrice).toFixed(2)}) `;
+		}
+
+		let platformString = "";
+		if (platforms.length > 1) {
+			platformString = `on ${platforms[0]}!`;
+		} else if (platforms.length > 0) {
+			platformString = `on ${platforms.join(", ")}!`;
+		}
+
+		twitterMessage = `
+${qtyString}Curio Card ${cards[0]} was sold for ${totalPrice} ${token} ${totalPriceUsdString}${platformString}
+
+https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${cards[0]}
+
+[picture]
+
+`;
+	} else {
+		console.warn("todo");
+		twitterMessage = "todo";
+	}
+
+	const mediaIds = uploadMedia();
+
+	return [twitterMessage, []];
+}
+
 module.exports = exports = {
 	formatDiscordMessage,
+	formatTwitterMessage,
 }
