@@ -26,20 +26,19 @@ const transferHandler = async ({ data, totalPrice, buyer, seller, ethPrice, toke
 	// tweet
 	const [twitterMessage, mediaIds] = await formatTwitterMessage(twitterClient, { data, totalPrice, buyer, seller, ethPrice, token, platforms });
 	console.log(twitterMessage);
-	//rwTwitterClient.v1.tweet(twitterMessage, { media_ids: mediaIds }).catch(console.error);
-
-
-	//card = 4
-	//const mediaId = await uploadMedia(card);
-	//await rwTwitterClient.v1.tweet(`Curio Card ${data[]} sold for `, { media_ids: mediaId });
-
-	/*
-		heres the plan
-		create formatTwitterMessage
-	*/
-
+	twitterClient.v1.tweet(twitterMessage, { media_ids: mediaIds }).catch(console.error);
 };
 
 //watchForTransfers(transferHandler);
 
-transferHandler({});
+
+const singleSale = {
+	data: { '9': 2, '10': 1, '11': 3, '12': 4, '13': 5, '14': 6},
+	totalPrice: 0.3,
+	buyer: '0x2757476cd6a9efeb748e2f0c747d7b3c7002219b',
+	seller: '0xf481db34ed8844ce98ce339c5fd01ef8d4261955',
+	ethPrice: 2036.2552894003065,
+	token: 'ETH',
+	platforms: [ 'OpenSea' ]
+};
+transferHandler(singleSale);

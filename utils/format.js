@@ -79,37 +79,12 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 	const buyerUsername = await getUsername(buyer);
 	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller);
 
-	let quantities = [];
-	for (const [card, qty] of Object.entries(data)) {
-		quantities.push(`${qty}x CRO${card}`);
-	}
-	const cards = Object.keys(data);
-	const card = cards[0];
-
-/*
-Curio Card 5 was sold for 0.65 ETH ($1232.63) on OpenSea!
-
-https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/5
-
-[picture]
-
-Multiple curio cards were sold at once:
-1x Curio 27
-1x Curio 28
-1x Curio 29
-
-Sale price: 3.5 ETH ($5275.07)
-
-[pictures]
-*/
-
 	let twitterMessage;
 	let mediaIds = [];
-	if (cards.length == 1) {
-		let qtyString = "";
-		if (quantities[1] > 1) {
-			qtyString = `${quantities[1]}x `;
-		}
+
+	if (Object.keys(data).length == 1) {
+		console.log("Object.entries(data) is:")
+		console.log(Object.entries(data))
 
 		let totalPriceUsdString = "";
 		if(['ETH', 'WETH'].includes(token)) {
@@ -123,14 +98,29 @@ Sale price: 3.5 ETH ($5275.07)
 			platformString = `on ${platforms.join(", ")}!`;
 		}
 
-		twitterMessage = `${qtyString}Curio Card ${cards[0]} was sold for ${totalPrice} ${token} ${totalPriceUsdString}${platformString}
+		const cardNum = Object.keys(data)[0];
+		const cardCount = Object.values(data)[0];
+		let qtyString = "";
+		if (cardCount > 1) {
+			qtyString = `${cardCount}x `;
+		}
+		twitterMessage = `${qtyString}Curio Card ${cardNum} sold for ${totalPrice} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${cardNum}`;
 
-https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${cards[0]}`;
-
-		mediaIds = [await uploadMedia(twitterClient, cards[0])];
+		mediaIds = [await uploadMedia(twitterClient, cardNum)];
 	} else {
-		console.warn("todo");
-		twitterMessage = "todo";
+		console.log("Object.entries(data) is:")
+		console.log(Object.entries(data))
+		let qtyString = Object.entries(data).map(q => `${q[1]}x Curio ${q[0]}`).join('\n');
+
+		let totalPriceUsdString = "";
+		if(['ETH', 'WETH'].includes(token)) {
+			totalPriceUsdString = `($${(totalPrice * ethPrice).toFixed(2)})`;
+		}
+
+		const cardNums = Object.keys(data).slice(0, 4);
+
+		twitterMessage = `Multiple Curio Cards sold for a total of ${totalPrice} ${token} ${totalPriceUsdString}!\n${qtyString}`;
+		mediaIds = await Promise.all(cardNums.map(card => uploadMedia(twitterClient, card)));
 	}
 
 	return [twitterMessage, mediaIds];
