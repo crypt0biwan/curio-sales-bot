@@ -1,18 +1,13 @@
 const { formatDiscordMessage, formatTwitterMessage } = require('../utils/format');
-const { TwitterApi } = require('twitter-api-v2');
 
-require('dotenv').config();
-const {
-	TWITTER_API_KEY, TWITTER_API_KEY_SECRET, TWITTER_ACCESS_TOKEN_KEY, TWITTER_ACCESS_TOKEN_SECRET
-} = process.env;
-
-const _twitterClient = new TwitterApi({
-	appKey: TWITTER_API_KEY,
-	appSecret: TWITTER_API_KEY_SECRET,
-	accessToken: TWITTER_ACCESS_TOKEN_KEY,
-	accessSecret: TWITTER_ACCESS_TOKEN_SECRET
-});
-const twitterClient = _twitterClient.readWrite; // client needed to test image upload
+const mockTwitterClient = {
+	v1: {
+		uploadMedia: async function(cardPath) {
+			console.log("mocked uploadMedia(): " + cardPath)
+			return "unit-test";
+		}
+	}
+}
 
 const assert = require("assert");
 
@@ -70,7 +65,7 @@ describe("Formatter", function () {
 
 	describe("formatTwitterMessage()", function () {
 		it("should format single sales correctly", async function () {
-			const [twitterMessage, mediaIds] = await formatTwitterMessage(twitterClient, singleSale);
+			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, singleSale);
 
 			console.log(twitterMessage);
 			const expectedMessage = `Curio Card 10 sold for 0.3 ETH ($610.88) on OpenSea!\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/10`;
@@ -83,7 +78,7 @@ describe("Formatter", function () {
 		});
 
 		it("should format single sales (with >1 quantity) correctly", async function () {
-			const [twitterMessage, mediaIds] = await formatTwitterMessage(twitterClient, singleSaleMultipleQty);
+			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, singleSaleMultipleQty);
 
 			console.log(twitterMessage);
 			const expectedMessage = `23x Curio Card 9 sold for 7.5 ETH ($15271.91) on OpenSea!\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/9`;
@@ -96,7 +91,7 @@ describe("Formatter", function () {
 		});
 
 		it("should format multi-card sales correctly", async function () {
-			const [twitterMessage, mediaIds] = await formatTwitterMessage(twitterClient, multiSale);
+			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, multiSale);
 
 			console.log(twitterMessage);
 			const expectedMessage = `Multiple Curio Cards sold for a total of 1.24 ETH ($2524.96)!\n2x Curio 9\n1x Curio 10\n3x Curio 11`;
@@ -109,7 +104,7 @@ describe("Formatter", function () {
 		});
 
 		it("should format multi-card sales (with >4 different cards) correctly", async function () {
-			const [twitterMessage, mediaIds] = await formatTwitterMessage(twitterClient, multiSaleWithMoreThan4);
+			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, multiSaleWithMoreThan4);
 
 			console.log(twitterMessage);
 			const expectedMessage = `Multiple Curio Cards sold for a total of 10 ETH ($20362.55)!\n2x Curio 9\n1x Curio 10\n3x Curio 11\n4x Curio 12\n5x Curio 13\n6x Curio 14`;
