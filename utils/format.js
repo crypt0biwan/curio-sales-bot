@@ -63,13 +63,13 @@ async function uploadMedia(twitterClient, _card) {
 	const card = parseInt(_card);
 
 	if (card <= 9) {
-		 mediaId = await twitterClient.v1.uploadMedia(`../images/0${card}.jpg`);
+		 mediaId = await twitterClient.v1.uploadMedia(`images/0${card}.jpg`);
 	} else if (card == 21 || card == 22) {
-		 mediaId = await twitterClient.v1.uploadMedia(`../images/${card}.png`);
+		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.png`);
 	} else if (card == 23 || card == 30) {
-		 mediaId = await twitterClient.v1.uploadMedia(`../images/${card}.gif`);
+		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.gif`);
 	} else {
-		 mediaId = await twitterClient.v1.uploadMedia(`../images/${card}.jpg`);
+		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.jpg`);
 	}
 
 	return mediaId;
@@ -83,9 +83,6 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 	let mediaIds = [];
 
 	if (Object.keys(data).length == 1) {
-		console.log("Object.entries(data) is:")
-		console.log(Object.entries(data))
-
 		let totalPriceUsdString = "";
 		if(['ETH', 'WETH'].includes(token)) {
 			totalPriceUsdString = `($${(totalPrice * ethPrice).toFixed(2)}) `;
@@ -108,8 +105,6 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 
 		mediaIds = [await uploadMedia(twitterClient, cardNum)];
 	} else {
-		console.log("Object.entries(data) is:")
-		console.log(Object.entries(data))
 		let qtyString = Object.entries(data).map(q => `${q[1]}x Curio ${q[0]}`).join('\n');
 
 		let totalPriceUsdString = "";

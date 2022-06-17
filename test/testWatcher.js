@@ -9,7 +9,7 @@ describe("Watcher", function () {
 	describe("handleCurioTransfer()", function () {
 		it("should correctly find the single card 10 transfer in block 14516246", async function () {
 			const events = await getEventsFromBlock(14516246);
-			assert(events.length === 1);
+			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, {"10": 1})
@@ -18,13 +18,13 @@ describe("Watcher", function () {
 
 		it("should correctly find the 5x card 11 transfer in block 14268794", async function () {
 			const events = await getEventsFromBlock(14268794);
-			assert(events.length === 1);
+			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, {"11": 5});
 			assert.equal(transfer.totalPrice, 2);
 		});
-	});
+  });
 
 	describe("bundleSale()", function () {
 		it("should return the correct data for a bundle sale", async function () {
@@ -58,7 +58,7 @@ describe("Watcher", function () {
 			assert.equal(details.token, "ETH");
 			assert.equal(details.totalPrice, "0.5");
 		})
-	
+
 		it("should return the correct numbers for a WETH sale", async function () {
 			const details = await handleCurioTransfer({
 				transactionHash: '0xe0e164a2dd03d1182e5cc8247a398a137996eee5c8be32577e88419d505a3fef'
@@ -67,7 +67,7 @@ describe("Watcher", function () {
 			assert.equal(details.token, "WETH");
 			assert.equal(details.totalPrice, "0.371");
 		})
-	
+
 		it("should return the correct numbers for an USDC sale", async function () {
 			const details = await handleCurioTransfer({
 				transactionHash: '0x020dd8b60a00665c5c0dbbfca67d2e0ed2c7d678eb641d9fa42cd8bd7f2352d4'
