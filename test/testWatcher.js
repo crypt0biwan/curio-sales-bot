@@ -24,7 +24,7 @@ describe("Watcher", function () {
 			assert.deepEqual(transfer.data, {"11": 5});
 			assert.equal(transfer.totalPrice, 2);
 		});
-  });
+	});
 
 	describe("bundleSale()", function () {
 		it("should return the correct data for a bundle sale", async function () {

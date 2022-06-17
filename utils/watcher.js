@@ -27,8 +27,8 @@ const uniswapAbi = require("../abis/Uniswap_USDC_ETH_LP.json");
 const uniswapContract = async () => await new Ethers.Contract(UNISWAP_USDC_ETH_LP_CONTRACT, uniswapAbi, provider);
 
 const getEthUsdPrice = async () => await uniswapContract()
-    .then(contract => contract.getReserves())
-    .then(reserves => Number(reserves._reserve0) / Number(reserves._reserve1) * 1e12); // times 10^12 because usdc only has 6 decimals
+	.then(contract => contract.getReserves())
+	.then(reserves => Number(reserves._reserve0) / Number(reserves._reserve1) * 1e12); // times 10^12 because usdc only has 6 decimals
 
 const curioEventFilter = {
 	address: CURIO_WRAPPER_CONTRACT,
