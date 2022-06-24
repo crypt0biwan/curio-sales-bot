@@ -85,10 +85,8 @@ describe("Watcher", function () {
 				transactionHash: '0x6c4f3f7a1ee7bccf446bf65f87b342160d8065658ac0e36a07f6c175464ea2f3'
 			})
 
-			console.log(details)
-
-			// assert.equal(details.token, "ETH");
-			// assert.equal(details.totalPrice, "0.5");
+			assert.equal(details.token, "ETH");
+			assert.equal(details.totalPrice, "0.49999");
 		})
 
 		it("should return the correct numbers for a WETH sale", async function () {

@@ -124,13 +124,15 @@ async function handleCurioTransfer(tx) {
 		for (let log of seaportLogRaw) {
 			let seaportLog = seaportContract.interface.parseLog(log);
 
-			console.log(seaportLog.args.offer[0])
-
 			if(tokenTransfers.length) {
 				totalPrice += parseFloat(Ethers.utils.formatUnits(seaportLog.args.offer[0].amount.toBigInt(), decimals))
 			} else {
 				// regular ETH buy
-				// totalPrice += parseFloat(Ethers.utils.formatEther(seaportLog.args.price.toBigInt()));
+				let chunks = log.data.substring(2, log.data.length).match(/.{1,64}/g)
+
+				totalPrice += parseFloat(Ethers.utils.formatEther(Ethers.BigNumber.from(Buffer.from(chunks[13], 'hex'))))
+				totalPrice += parseFloat(Ethers.utils.formatEther(Ethers.BigNumber.from(Buffer.from(chunks[18], 'hex'))))
+				totalPrice += parseFloat(Ethers.utils.formatEther(Ethers.BigNumber.from(Buffer.from(chunks[23], 'hex'))))
 			}
 		}
 	}
