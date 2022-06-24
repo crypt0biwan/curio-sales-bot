@@ -14,6 +14,10 @@ const wyvernAbi = require("../abis/WyvernExchangeWithBulkCancellations.json");
 const wyvernContract = new Ethers.Contract(OPENSEA_CONTRACT, wyvernAbi, provider);
 const erc20TokenAbi = require("../abis/ERC20Token.json");
 
+const OPENSEA_SEAPORT_CONTRACT = "0x00000000006c3852cbef3e08e8df289169ede581"
+const seaportAbi = require("../abis/SeaPort.json");
+const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT, seaportAbi, provider);
+
 const CURIO_WRAPPER_CONTRACT = "0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313";
 const curioAbi = require("../abis/CurioERC1155Wrapper.json");
 const curioContract = new Ethers.Contract(CURIO_WRAPPER_CONTRACT, curioAbi, provider);
@@ -54,6 +58,10 @@ async function handleCurioTransfer(tx) {
 		return [OPENSEA_CONTRACT, OLD_OPENSEA_CONTRACT].includes(x.address.toLowerCase())
 	});
 
+	let seaportLogRaw = txReceipt.logs.filter(x => {
+		return [OPENSEA_SEAPORT_CONTRACT].includes(x.address.toLowerCase())
+	});
+
 	let looksRareLogRaw = txReceipt.logs.filter(x => {
 		return [
 			Ethers.utils.keccak256(Ethers.utils.toUtf8Bytes('TakerBid(bytes32,uint256,address,address,address,address,address,uint256,uint256,uint256)')),
@@ -62,12 +70,12 @@ async function handleCurioTransfer(tx) {
 	});
 
 	// early return check
-	if (wyvernLogRaw.length === 0 && looksRareLogRaw.length === 0) {
-		console.log("found transfer, but no associated OpenSea or LooksRare sale");
+	if (wyvernLogRaw.length === 0 && seaportLogRaw.length === 0 && looksRareLogRaw.length === 0) {
+		console.log("found transfer, but no associated OpenSea (Wyvern or Seaport) or LooksRare sale");
 		return { qty: 0, card: 0, totalPrice: 0};
 	}
 
-	// check for OpenSea sale
+	// check for OpenSea (Wyvern contract) sale
 	if(wyvernLogRaw.length) {
 		platforms.push("OpenSea")
 		// Check if related token transfers instead of a regular ETH buy
@@ -86,11 +94,43 @@ async function handleCurioTransfer(tx) {
 		}
 		for (let log of wyvernLogRaw) {
 			let wyvernLog = wyvernContract.interface.parseLog(log);
+
 			if(tokenTransfers.length) {
 				totalPrice += parseFloat(Ethers.utils.formatUnits(wyvernLog.args.price.toBigInt(), decimals))
 			} else {
 				// regular ETH buy
 				totalPrice += parseFloat(Ethers.utils.formatEther(wyvernLog.args.price.toBigInt()));
+			}
+		}
+	}
+
+	// check for OpenSea (Seaport contract) sale
+	if(seaportLogRaw.length) {
+		platforms.push("OpenSea")
+		// Check if related token transfers instead of a regular ETH buy
+		let tokenTransfers = txReceipt.logs.filter(x => {
+			return x.topics.includes(Ethers.utils.keccak256(Ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)')))
+		});
+		// ERC20 token buy
+		let decimals;
+		if (tokenTransfers.length) {
+			const tokenAddress = tokenTransfers[0].address.toLowerCase()
+			const erc20TokenContract = new Ethers.Contract(tokenAddress, erc20TokenAbi, provider);
+			
+			const symbol = await erc20TokenContract.symbol()
+			decimals = await erc20TokenContract.decimals()
+			token = symbol
+		}
+		for (let log of seaportLogRaw) {
+			let seaportLog = seaportContract.interface.parseLog(log);
+
+			console.log(seaportLog.args.offer[0])
+
+			if(tokenTransfers.length) {
+				totalPrice += parseFloat(Ethers.utils.formatUnits(seaportLog.args.offer[0].amount.toBigInt(), decimals))
+			} else {
+				// regular ETH buy
+				// totalPrice += parseFloat(Ethers.utils.formatEther(seaportLog.args.price.toBigInt()));
 			}
 		}
 	}
@@ -139,7 +179,7 @@ async function handleCurioTransfer(tx) {
 	for ( const [card, qty] of Object.entries(data)) {
 		sales.push(`${qty}x CRO${card}`)
 	}
-	console.log(`Found curio sale: ${sales.join(", ")} sold for ${totalPrice}`)
+	console.log(`Found curio sale: ${sales.join(", ")} sold for ${totalPrice} ${token}`)
 	return { data, totalPrice, buyer, seller, ethPrice, token, platforms };
 }
 
