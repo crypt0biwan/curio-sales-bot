@@ -16,7 +16,7 @@ const getUsername = async address => {
             }
         })
         .catch(function (error) {
-            console.log(error);
+            console.error(error);
             resolve(formatETHaddress(address))
         })
     })
