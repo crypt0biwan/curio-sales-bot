@@ -79,6 +79,26 @@ describe("Watcher", function () {
 		});
 	});
 
+	describe("handleSeaportSales()", function() {
+		it("should return the correct numbers for an ETH sale", async function () {
+			const details = await handleCurioTransfer({
+				transactionHash: '0x6c4f3f7a1ee7bccf446bf65f87b342160d8065658ac0e36a07f6c175464ea2f3'
+			})
+
+			assert.equal(details.token, "ETH");
+			assert.equal(details.totalPrice, "0.49999");
+		})
+
+		it("should return the correct numbers for a WETH sale", async function () {
+			const details = await handleCurioTransfer({
+				transactionHash: '0xa0f3e19e03db8c9286742529828dde8d17d16935b3dbfb34826fcad6ecd2f145'
+			})
+
+			assert.equal(details.token, "WETH");
+			assert.equal(details.totalPrice, "0.32");
+		})
+	})
+
 	describe("handleLooksRareSales()", function () {
 		it("should return the correct numbers for a WETH sale", async function () {
 			const details = await handleCurioTransfer({
