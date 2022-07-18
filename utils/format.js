@@ -1,6 +1,23 @@
 const COLORS = require('./colors')
 const { getUsername } = require('./opensea')
 
+const getImageURL = _card => {
+	const card = parseInt(_card)
+	let cardURL = ''
+
+	if (card <= 9) {
+		cardURL = `0${card}.jpg`
+	} else if (card == 21 || card == 22) {
+		cardURL = `${card}.png`
+	} else if (card == 23 || card == 30) {
+		cardURL = `${card}.gif`
+	} else {
+		cardURL = `${card}.jpg`
+	}	
+
+	return cardURL
+}
+
 const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
 	const buyerUsername = await getUsername(buyer)
 	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller)
@@ -49,7 +66,7 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 				description: `${platforms.length > 1 ? "Platforms" : "Platform"}: **${platforms.join(", ")}**\nBuyer: **${buyerUsername}**\nSeller: **${sellerUsername}**\n---------------------------------`,
 				url,
 				thumbnail: {
-					url: `https://fafrd.github.io/curio-gallery/images/${card < 10 ? `0${card}` : card}.jpg` //`https://ipfs.io/ipfs/${imgHash}`
+					url: `https://fafrd.github.io/curio-gallery/images/${getImageURL(card)}`
 				},
 				color: COLORS.GREEN,
 				fields,
@@ -60,25 +77,12 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 }
 
 async function uploadMedia(twitterClient, _card) {
-	const card = parseInt(_card);
-
-	if (card <= 9) {
-		 mediaId = await twitterClient.v1.uploadMedia(`images/0${card}.jpg`);
-	} else if (card == 21 || card == 22) {
-		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.png`);
-	} else if (card == 23 || card == 30) {
-		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.gif`);
-	} else {
-		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.jpg`);
-	}
+	mediaId = await twitterClient.v1.uploadMedia(`images/${getImageURL(_card)}`);
 
 	return mediaId;
 }
 
 const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
-	const buyerUsername = await getUsername(buyer);
-	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller);
-
 	let twitterMessage;
 	let mediaIds = [];
 
