@@ -1,6 +1,32 @@
 const COLORS = require('./colors')
 const { getUsername } = require('./opensea')
 
+const getImageURL = _card => {
+	const card = parseInt(_card)
+	let cardURL = ''
+
+	if (card <= 9) {
+		cardURL = `0${card}.jpg`
+	} else if (card == 21 || card == 22) {
+		cardURL = `${card}.png`
+	} else if (card == 23 || card == 30) {
+		cardURL = `${card}.gif`
+	} else {
+		cardURL = `${card}.jpg`
+	}	
+
+	return cardURL
+}
+
+// style = currency to include dollar sign
+const formatValue = (value, decimals = 2, style = 'decimal') =>
+	new Intl.NumberFormat('en-US', {
+		style,
+		currency: 'USD',
+		minimumFractionDigits: decimals,
+		maximumFractionDigits: decimals,
+	}).format(value)
+
 const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
 	const buyerUsername = await getUsername(buyer)
 	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller)
@@ -24,7 +50,7 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 		},
 		{
 			name: token,
-			value: parseFloat(totalPrice).toFixed(2),
+			value: formatValue(parseFloat(totalPrice), 2),
 			inline: true,
 		}
 	]
@@ -33,7 +59,7 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 	if(['ETH', 'WETH'].includes(token)) {
 		fields.push({
 			name: 'USD',
-			value: parseFloat(totalPrice * ethPrice).toFixed(2),
+			value: formatValue(parseFloat(totalPrice * ethPrice), 2),
 			inline: true,
 		})
 	}
@@ -49,7 +75,7 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 				description: `${platforms.length > 1 ? "Platforms" : "Platform"}: **${platforms.join(", ")}**\nBuyer: **${buyerUsername}**\nSeller: **${sellerUsername}**\n---------------------------------`,
 				url,
 				thumbnail: {
-					url: `https://fafrd.github.io/curio-gallery/images/${card < 10 ? `0${card}` : card}.jpg` //`https://ipfs.io/ipfs/${imgHash}`
+					url: `https://fafrd.github.io/curio-gallery/images/${getImageURL(card)}`
 				},
 				color: COLORS.GREEN,
 				fields,
@@ -60,32 +86,20 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 }
 
 async function uploadMedia(twitterClient, _card) {
-	const card = parseInt(_card);
-
-	if (card <= 9) {
-		 mediaId = await twitterClient.v1.uploadMedia(`images/0${card}.jpg`);
-	} else if (card == 21 || card == 22) {
-		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.png`);
-	} else if (card == 23 || card == 30) {
-		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.gif`);
-	} else {
-		 mediaId = await twitterClient.v1.uploadMedia(`images/${card}.jpg`);
-	}
+	mediaId = await twitterClient.v1.uploadMedia(`images/${getImageURL(_card)}`);
 
 	return mediaId;
 }
 
 const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
-	const buyerUsername = await getUsername(buyer);
-	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller);
-
 	let twitterMessage;
 	let mediaIds = [];
+	let totalPriceString = formatValue(totalPrice, 2)
 
 	if (Object.keys(data).length == 1) {
 		let totalPriceUsdString = "";
 		if(['ETH', 'WETH'].includes(token)) {
-			totalPriceUsdString = `($${(totalPrice * ethPrice).toFixed(2)}) `;
+			totalPriceUsdString = `(${formatValue(totalPrice * ethPrice, 2, 'currency')}) `;
 		}
 
 		let platformString = "";
@@ -101,7 +115,7 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 		if (cardCount > 1) {
 			qtyString = `${cardCount}x `;
 		}
-		twitterMessage = `${qtyString}Curio Card ${cardNum} sold for ${totalPrice} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${cardNum}`;
+		twitterMessage = `${qtyString}Curio Card ${cardNum} sold for ${totalPriceString} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${cardNum}`;
 
 		mediaIds = [await uploadMedia(twitterClient, cardNum)];
 	} else {
@@ -109,12 +123,12 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 
 		let totalPriceUsdString = "";
 		if(['ETH', 'WETH'].includes(token)) {
-			totalPriceUsdString = `($${(totalPrice * ethPrice).toFixed(2)})`;
+			totalPriceUsdString = `(${formatValue(totalPrice * ethPrice, 2, 'currency')})`;
 		}
 
 		const cardNums = Object.keys(data).slice(0, 4);
 
-		twitterMessage = `Multiple Curio Cards sold for a total of ${totalPrice} ${token} ${totalPriceUsdString}!\n${qtyString}`;
+		twitterMessage = `Multiple Curio Cards sold for a total of ${totalPriceString} ${token} ${totalPriceUsdString}!\n${qtyString}`;
 		mediaIds = await Promise.all(cardNums.map(card => uploadMedia(twitterClient, card)));
 	}
 
