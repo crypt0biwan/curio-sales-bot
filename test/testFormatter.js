@@ -82,7 +82,7 @@ describe("Formatter", function () {
 	describe("formatTwitterMessage()", function () {
 		it("should format single sales correctly", async function () {
 			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, singleSale);
-			const expectedMessage = `Curio Card 10 sold for 0.30 ETH ($610.88) on OpenSea!\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/10`;
+			const expectedMessage = `Curio Card 10 sold for 0.30 ETH ($611) on OpenSea!\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/10`;
 
 			assert.equal(expectedMessage, twitterMessage);
 			assert.equal(mediaIds.length, 1);
@@ -92,7 +92,7 @@ describe("Formatter", function () {
 
 		it("should format single sales (with >1 quantity) correctly", async function () {
 			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, singleSaleMultipleQty);
-			const expectedMessage = `23x Curio Card 9 sold for 7.50 ETH ($15,271.91) on OpenSea!\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/9`;
+			const expectedMessage = `23x Curio Card 9 sold for 7.50 ETH ($15,272) on OpenSea!\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/9`;
 
 			assert.equal(expectedMessage, twitterMessage);
 			assert.equal(mediaIds.length, 1);
@@ -102,7 +102,7 @@ describe("Formatter", function () {
 
 		it("should format multi-card sales correctly", async function () {
 			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, multiSale);
-			const expectedMessage = `Multiple Curio Cards sold for a total of 1.24 ETH ($2,524.96)!\n2x Curio 9\n1x Curio 10\n3x Curio 11`;
+			const expectedMessage = `Multiple Curio Cards sold for a total of 1.24 ETH ($2,525)!\n2x Curio 9\n1x Curio 10\n3x Curio 11`;
 
 			assert.equal(expectedMessage, twitterMessage);
 			assert.equal(mediaIds.length, 3);
@@ -112,7 +112,7 @@ describe("Formatter", function () {
 
 		it("should format multi-card sales (with >4 different cards) correctly", async function () {
 			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, multiSaleWithMoreThan4);
-			const expectedMessage = `Multiple Curio Cards sold for a total of 10.00 ETH ($20,362.55)!\n2x Curio 9\n1x Curio 10\n3x Curio 11\n4x Curio 12\n5x Curio 13\n6x Curio 14`;
+			const expectedMessage = `Multiple Curio Cards sold for a total of 10.00 ETH ($20,363)!\n2x Curio 9\n1x Curio 10\n3x Curio 11\n4x Curio 12\n5x Curio 13\n6x Curio 14`;
 
 			assert.equal(expectedMessage, twitterMessage);
 			assert.equal(mediaIds.length, 4);

@@ -59,7 +59,7 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 	if(['ETH', 'WETH'].includes(token)) {
 		fields.push({
 			name: 'USD',
-			value: formatValue(parseFloat(totalPrice * ethPrice), 2),
+			value: formatValue(parseFloat(totalPrice * ethPrice), 0),
 			inline: true,
 		})
 	}
@@ -99,7 +99,7 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 	if (Object.keys(data).length == 1) {
 		let totalPriceUsdString = "";
 		if(['ETH', 'WETH'].includes(token)) {
-			totalPriceUsdString = `(${formatValue(totalPrice * ethPrice, 2, 'currency')}) `;
+			totalPriceUsdString = `(${formatValue(totalPrice * ethPrice, 0, 'currency')}) `;
 		}
 
 		let platformString = "";
@@ -123,7 +123,7 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 
 		let totalPriceUsdString = "";
 		if(['ETH', 'WETH'].includes(token)) {
-			totalPriceUsdString = `(${formatValue(totalPrice * ethPrice, 2, 'currency')})`;
+			totalPriceUsdString = `(${formatValue(totalPrice * ethPrice, 0, 'currency')})`;
 		}
 
 		const cardNums = Object.keys(data).slice(0, 4);
