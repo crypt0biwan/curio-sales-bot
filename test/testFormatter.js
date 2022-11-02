@@ -63,7 +63,7 @@ describe("Formatter", function () {
 			assert.equal(discordMsg.username, 'CurioCard Sales')
 			assert.equal(discordMsg.embeds[0].author.name, 'Curio Cards')
 			assert.equal(discordMsg.embeds[0].title, 'Curio 10 has been sold')
-			assert.equal(discordMsg.embeds[0].description, 'Platform: **OpenSea**\nBuyer: **ASWMZ5**\nSeller: **TeamPicture2**\n---------------------------------')
+			assert.equal(discordMsg.embeds[0].description, 'Platform: **OpenSea**\nBuyer: **ASWMZ5**\nSeller: **johnveth2**\n---------------------------------')
 			assert.equal(discordMsg.embeds[0].thumbnail.url, 'https://fafrd.github.io/curio-gallery/images/10.jpg')
 			assert.equal(discordMsg.embeds[0].color, '0x4bea1d')
 			assert.deepEqual(discordMsg.embeds[0].fields[0], {
