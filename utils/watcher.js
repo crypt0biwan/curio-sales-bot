@@ -19,8 +19,10 @@ const seaportAbi = require("../abis/SeaPort.json");
 const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT, seaportAbi, provider);
 
 const CURIO_WRAPPER_CONTRACT = "0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313";
+const CURIO_17B_WRAPPER_CONTRACT = "0x04afa589e2b933f9463c5639f412b183ec062505";
 const curioAbi = require("../abis/CurioERC1155Wrapper.json");
 const curioContract = new Ethers.Contract(CURIO_WRAPPER_CONTRACT, curioAbi, provider);
+const curio17bContract = new Ethers.Contract(CURIO_17B_WRAPPER_CONTRACT, curioAbi, provider);
 
 const LOOKSRARE_CONTRACT = "0x59728544b08ab483533076417fbbb2fd0b17ce3a"
 const looksAbi = require("../abis/LooksRare.json");
@@ -41,9 +43,21 @@ const curioEventFilter = {
 	]
 };
 
+const curio17bEventFilter = {
+	address: CURIO_17B_WRAPPER_CONTRACT,
+	topics: [
+		Ethers.utils.id("TransferSingle(address,address,address,uint256,uint256)")
+	]
+};
+
 // this is a helper for the unit test
-async function getEventsFromBlock(blockNum) {
+async function getCurioEventsFromBlock(blockNum) {
 	return await curioContract.queryFilter(curioEventFilter, fromBlock=blockNum, toBlock=blockNum);
+}
+
+// this is a helper for the unit test
+async function getCurio17bEventsFromBlock(blockNum) {
+	return await curio17bContract.queryFilter(curio17bEventFilter, fromBlock=blockNum, toBlock=blockNum);
 }
 
 let lastTx;
@@ -159,7 +173,7 @@ async function handleCurioTransfer(tx) {
 
 	
 	curioLogRaw = txReceipt.logs.filter(x => {
-		return [CURIO_WRAPPER_CONTRACT].includes(x.address.toLowerCase())
+		return [CURIO_WRAPPER_CONTRACT, CURIO_17B_WRAPPER_CONTRACT].includes(x.address.toLowerCase())
 	});
 
 	if (curioLogRaw.length === 0) {
@@ -206,6 +220,13 @@ function watchForTransfers(transferHandler) {
 			transferHandler(transfer);
 		}
 	});
+
+	provider.on(curio17bEventFilter, async (log) => {
+		const transfer = await handleCurioTransfer(log);
+		if (transfer.data) {
+			transferHandler(transfer);
+		}
+	});
 }
 
-module.exports = { watchForTransfers, handleCurioTransfer, getEventsFromBlock };
+module.exports = { watchForTransfers, handleCurioTransfer, getCurioEventsFromBlock, getCurio17bEventsFromBlock };

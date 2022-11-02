@@ -7,7 +7,7 @@ const getImageURL = _card => {
 
 	if (card <= 9) {
 		cardURL = `0${card}.jpg`
-	} else if (card == 21 || card == 22) {
+	} else if (card == 21 || card == 22 || card == 172) {
 		cardURL = `${card}.png`
 	} else if (card == 23 || card == 30) {
 		cardURL = `${card}.gif`
@@ -33,15 +33,20 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 	
 	let quantities = []
 	for (const [card, qty] of Object.entries(data)) {
-		quantities.push(`${qty}x CRO${card}`)
+		if (card == "172") {
+			quantities.push(`${qty}x CRO17b (misprint)`);
+		} else {
+			quantities.push(`${qty}x CRO${card}`);
+		}
 	}
-	const cards = Object.keys(data)
-	const card = cards[0]
+	const cards = Object.keys(data);
+	const card = cards[0];
 
+	const contract = (card == "172") ? "0x04AfA589E2b933f9463C5639f412b183Ec062505" : "0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313";
 	const url = 
 		platforms[0] === 'LooksRare'
-		? `https://looksrare.org/collections/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/${card}`
-		: `https://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${card}`
+		? `https://looksrare.org/collections/${contract}/${card}`
+		: `https://opensea.io/assets/${contract}/${card}`;
 	let fields = [
 		{
 			name: 'Quantity',
@@ -53,8 +58,19 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 			value: formatValue(parseFloat(totalPrice), 2),
 			inline: true,
 		}
-	]
-	const title = (cards.length > 1) ? `Curios ${cards.join(", ")} have been sold` : `Curio ${card} has been sold` // If different cards sold, make title reflect that
+	];
+
+	let title = "";
+	if (cards.length > 1) {
+		cards.splice(cards.indexOf("172"), 1, "CRO17b (misprint)");
+		title = `Curios ${cards.join(", ")} have been sold`;
+	} else {
+		if (card == "172") {
+			title = "Curio 17b (misprint) has been sold";
+		} else {
+			title = `Curio ${card} has been sold`;
+		}
+	}
 
 	if(['ETH', 'WETH'].includes(token)) {
 		fields.push({
@@ -115,11 +131,21 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 		if (cardCount > 1) {
 			qtyString = `${cardCount}x `;
 		}
-		twitterMessage = `${qtyString}Curio Card ${cardNum} sold for ${totalPriceString} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313/${cardNum}`;
+		if (cardNum == "172") {
+			twitterMessage = `${qtyString}Curio Card 17b (misprint) sold for ${totalPriceString} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/0x04AfA589E2b933f9463C5639f412b183Ec062505/${cardNum}`;
+		} else {
+			twitterMessage = `${qtyString}Curio Card ${cardNum} sold for ${totalPriceString} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/${cardNum}`;
+		}
 
 		mediaIds = [await uploadMedia(twitterClient, cardNum)];
 	} else {
-		let qtyString = Object.entries(data).map(q => `${q[1]}x Curio ${q[0]}`).join('\n');
+		let qtyString = Object.entries(data).map(q => {
+			if(q[0] == "172") {
+				return `${q[1]}x Curio 17b (misprint)`;
+			} else {
+				return `${q[1]}x Curio ${q[0]}`;
+			}
+		}).join('\n');
 
 		let totalPriceUsdString = "";
 		if(['ETH', 'WETH'].includes(token)) {
