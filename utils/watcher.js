@@ -210,10 +210,6 @@ async function handleCurioTransfer(tx) {
 }
 
 function watchForTransfers(transferHandler) {
-	provider.on("block", (blockNumber) => {
-		console.log("new block: " + blockNumber)
-	});
-
 	provider.on(curioEventFilter, async (log) => {
 		const transfer = await handleCurioTransfer(log);
 		if (transfer.data) {
