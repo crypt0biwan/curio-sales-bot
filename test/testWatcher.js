@@ -1,4 +1,4 @@
-const { handleCurioTransfer, getEventsFromBlock } = require("../utils/watcher.js");
+const { handleCurioTransfer, getCurioEventsFromBlock, getCurio17bEventsFromBlock } = require("../utils/watcher.js");
 const { getUsername } = require("../utils/opensea");
 
 const assert = require("assert");
@@ -8,7 +8,7 @@ describe("Watcher", function () {
 
 	describe("handleCurioTransfer()", function () {
 		it("should correctly find the single card 10 transfer in block 14516246", async function () {
-			const events = await getEventsFromBlock(14516246);
+			const events = await getCurioEventsFromBlock(14516246);
 			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
@@ -17,12 +17,21 @@ describe("Watcher", function () {
 		});
 
 		it("should correctly find the 5x card 11 transfer in block 14268794", async function () {
-			const events = await getEventsFromBlock(14268794);
+			const events = await getCurioEventsFromBlock(14268794);
 			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, {"11": 5});
 			assert.equal(transfer.totalPrice, 2);
+		});
+
+		it("should correctly find the 1x card transfer 17b in block 15877962", async function () {
+			const events = await getCurio17bEventsFromBlock(15877962);
+			assert.equal(events.length, 1);
+
+			const transfer = await handleCurioTransfer(events[0])
+			assert.deepEqual(transfer.data, {"172": 1});
+			assert.equal(transfer.totalPrice, 1.44999);
 		});
 	});
 
