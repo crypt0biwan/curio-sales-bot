@@ -211,16 +211,24 @@ async function handleCurioTransfer(tx) {
 
 function watchForTransfers(transferHandler) {
 	provider.on(curioEventFilter, async (log) => {
-		const transfer = await handleCurioTransfer(log);
-		if (transfer.data) {
-			transferHandler(transfer);
+		try {
+			const transfer = await handleCurioTransfer(log);
+			if (transfer.data) {
+				transferHandler(transfer);
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	});
 
 	provider.on(curio17bEventFilter, async (log) => {
-		const transfer = await handleCurioTransfer(log);
-		if (transfer.data) {
-			transferHandler(transfer);
+		try {
+			const transfer = await handleCurioTransfer(log);
+			if (transfer.data) {
+				transferHandler(transfer);
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	});
 }

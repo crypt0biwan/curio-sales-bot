@@ -26,7 +26,7 @@ const transferHandler = async ({ data, totalPrice, buyer, seller, ethPrice, toke
 	// tweet
 	const [twitterMessage, mediaIds] = await formatTwitterMessage(twitterClient, { data, totalPrice, buyer, seller, ethPrice, token, platforms });
 	twitterClient.v1.tweet(twitterMessage, { media_ids: mediaIds }).catch(console.error);
-	//twitterClient.v1.tweet(twitterMessage, { media_ids: mediaIds }).catch(e => twitterClient.v1.tweet(e)); // printing error directly to tweet
 };
 
+console.log("Starting bot");
 watchForTransfers(transferHandler);
