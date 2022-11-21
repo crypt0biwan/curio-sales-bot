@@ -62,7 +62,9 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 
 	let title = "";
 	if (cards.length > 1) {
-		cards.splice(cards.indexOf("172"), 1, "CRO17b (misprint)");
+		if(cards.includes("172")) {
+			cards.splice(cards.indexOf("172"), 1, "CRO17b (misprint)");
+		}
 		title = `Curios ${cards.join(", ")} have been sold`;
 	} else {
 		if (card == "172") {
