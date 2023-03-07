@@ -33,6 +33,15 @@ describe("Watcher", function () {
 			assert.deepEqual(transfer.data, {"172": 1});
 			assert.equal(transfer.totalPrice, 1.44999);
 		});
+
+		it("should correctly find the single card 4 transfer in block 16771782 (seaport 1.4)", async function () {
+			const events = await getCurioEventsFromBlock(16771782);
+			assert.equal(events.length, 1);
+
+			const transfer = await handleCurioTransfer(events[0])
+			assert.deepEqual(transfer.data, {"4": 1})
+			assert.equal(transfer.totalPrice, 0.7100000000000001); // rounding error?
+		});
 	});
 
 	describe("bundleSale()", function () {

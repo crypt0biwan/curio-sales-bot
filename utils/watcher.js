@@ -8,15 +8,17 @@ const provider = new Ethers.providers.InfuraProvider("homestead", {
 	projectSecret: INFURA_SECRET
 });
 
+// contract addresses should be lowercase
 const OPENSEA_CONTRACT = "0x7f268357a8c2552623316e2562d90e642bb538e5";
 const OLD_OPENSEA_CONTRACT = "0x7be8076f4ea4a4ad08075c2508e481d6c946d12b";
 const wyvernAbi = require("../abis/WyvernExchangeWithBulkCancellations.json");
 const wyvernContract = new Ethers.Contract(OPENSEA_CONTRACT, wyvernAbi, provider);
 const erc20TokenAbi = require("../abis/ERC20Token.json");
 
-const OPENSEA_SEAPORT_CONTRACT = "0x00000000006c3852cbef3e08e8df289169ede581"
+const OPENSEA_SEAPORT_CONTRACT_1_2 = "0x00000000006c3852cbef3e08e8df289169ede581"
+const OPENSEA_SEAPORT_CONTRACT_1_4 = "0x00000000000001ad428e4906ae43d8f9852d0dd6"
 const seaportAbi = require("../abis/SeaPort.json");
-const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT, seaportAbi, provider);
+const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT_1_4, seaportAbi, provider);
 
 const CURIO_WRAPPER_CONTRACT = "0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313";
 const CURIO_17B_WRAPPER_CONTRACT = "0x04afa589e2b933f9463c5639f412b183ec062505";
@@ -73,7 +75,7 @@ async function handleCurioTransfer(tx) {
 	});
 
 	let seaportLogRaw = txReceipt.logs.filter(x => {
-		return [OPENSEA_SEAPORT_CONTRACT].includes(x.address.toLowerCase())
+		return [OPENSEA_SEAPORT_CONTRACT_1_2, OPENSEA_SEAPORT_CONTRACT_1_4].includes(x.address.toLowerCase())
 	});
 
 	let looksRareLogRaw = txReceipt.logs.filter(x => {
