@@ -17,8 +17,9 @@ const erc20TokenAbi = require("../abis/ERC20Token.json");
 
 const OPENSEA_SEAPORT_CONTRACT_1_2 = "0x00000000006c3852cbef3e08e8df289169ede581"
 const OPENSEA_SEAPORT_CONTRACT_1_4 = "0x00000000000001ad428e4906ae43d8f9852d0dd6"
+const OPENSEA_SEAPORT_CONTRACT_1_5 = "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
 const seaportAbi = require("../abis/SeaPort.json");
-const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT_1_4, seaportAbi, provider);
+const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT_1_5, seaportAbi, provider);
 
 const CURIO_WRAPPER_CONTRACT = "0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313";
 const CURIO_17B_WRAPPER_CONTRACT = "0x04afa589e2b933f9463c5639f412b183ec062505";
@@ -75,7 +76,7 @@ async function handleCurioTransfer(tx) {
 	});
 
 	let seaportLogRaw = txReceipt.logs.filter(x => {
-		return [OPENSEA_SEAPORT_CONTRACT_1_2, OPENSEA_SEAPORT_CONTRACT_1_4].includes(x.address.toLowerCase())
+		return [OPENSEA_SEAPORT_CONTRACT_1_2, OPENSEA_SEAPORT_CONTRACT_1_4, OPENSEA_SEAPORT_CONTRACT_1_5].includes(x.address.toLowerCase())
 	});
 
 	let looksRareLogRaw = txReceipt.logs.filter(x => {
@@ -103,7 +104,7 @@ async function handleCurioTransfer(tx) {
 		if (tokenTransfers.length) {
 			const tokenAddress = tokenTransfers[0].address.toLowerCase()
 			const erc20TokenContract = new Ethers.Contract(tokenAddress, erc20TokenAbi, provider);
-			
+
 			const symbol = await erc20TokenContract.symbol()
 			decimals = await erc20TokenContract.decimals()
 			token = symbol
@@ -132,7 +133,7 @@ async function handleCurioTransfer(tx) {
 		if (tokenTransfers.length) {
 			const tokenAddress = tokenTransfers[0].address.toLowerCase()
 			const erc20TokenContract = new Ethers.Contract(tokenAddress, erc20TokenAbi, provider);
-			
+
 			const symbol = await erc20TokenContract.symbol()
 			decimals = await erc20TokenContract.decimals()
 			token = symbol
@@ -144,16 +145,16 @@ async function handleCurioTransfer(tx) {
 				totalPrice += parseFloat(Ethers.utils.formatUnits(seaportLog.args.offer[0].amount.toBigInt(), decimals))
 			} else {
 				// regular ETH buy
-				
+
 				// OrderFulfilled(bytes32 orderHash,address offerer,address zone,address recipient,(uint8 itemType,address token,uint256 identifier,uint256 amount)[],(uint8 itemType,address token,uint256 identifier,uint256 amount,address recipient)[])
 				// OrderFulfilled(bytes32,address,address,address,(uint8,address,uint256,uint256)[],(uint8,address,uint256,uint256,address)[])
 				// method 0x9d9af8e3
-				
+
 				try {
 					// get the transfers of the last argument of the OrderFulfilled method
 					for(let transfer of seaportLog.args[seaportLog.args.length-1]) {
 						totalPrice += parseFloat(Ethers.utils.formatEther(Ethers.BigNumber.from(transfer.amount, 'hex')))
-					} 
+					}
 				} catch(e) {
 					// added some logging since the bot crashes no a rare occasion
 					console.log(e)
@@ -173,7 +174,6 @@ async function handleCurioTransfer(tx) {
 		token = 'WETH'
 	}
 
-	
 	curioLogRaw = txReceipt.logs.filter(x => {
 		return [CURIO_WRAPPER_CONTRACT, CURIO_17B_WRAPPER_CONTRACT].includes(x.address.toLowerCase())
 	});
@@ -188,7 +188,7 @@ async function handleCurioTransfer(tx) {
 	let buyer;
 	let seller;
 	let sellers = []
-	
+
 	for (let log of curioLogRaw) {
 		curioLog = curioContract.interface.parseLog(log);
 		// which card was transferred?
