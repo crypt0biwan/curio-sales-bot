@@ -117,6 +117,17 @@ describe("Watcher", function () {
 		})
 	})
 
+	describe("handleSeaport_1_5_Sales()", function() {
+		it("should return the correct numbers for an ETH sale", async function () {
+			const details = await handleCurioTransfer({
+				transactionHash: '0xeddfb3b22b48550e4d26f3ce4d4a4330c5960eb013447aa770b3ce71595108e7'
+			})
+
+			assert.equal(details.token, "ETH");
+			assert.equal(details.totalPrice, "0.155");
+		})
+	})
+
 	describe("handleLooksRareSales()", function () {
 		it("should return the correct numbers for a WETH sale", async function () {
 			const details = await handleCurioTransfer({
