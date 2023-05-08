@@ -17,7 +17,7 @@ const erc20TokenAbi = require("../abis/ERC20Token.json");
 
 const OPENSEA_SEAPORT_CONTRACT_1_2 = "0x00000000006c3852cbef3e08e8df289169ede581"
 const OPENSEA_SEAPORT_CONTRACT_1_4 = "0x00000000000001ad428e4906ae43d8f9852d0dd6"
-const OPENSEA_SEAPORT_CONTRACT_1_5 = "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
+const OPENSEA_SEAPORT_CONTRACT_1_5 = "0x00000000000000adc04c56bf30ac9d3c0aaf14dc"
 const seaportAbi = require("../abis/SeaPort.json");
 const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT_1_5, seaportAbi, provider);
 
