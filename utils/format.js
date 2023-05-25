@@ -46,7 +46,7 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 	const url = 
 		platforms[0] === 'LooksRare'
 		? `https://looksrare.org/collections/${contract}/${card}`
-		: `https://opensea.io/assets/${contract}/${card}`;
+		: `https://opensea.io/assets/ethereum/${contract}/${card}`;
 	let fields = [
 		{
 			name: 'Quantity',
@@ -134,9 +134,9 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 			qtyString = `${cardCount}x `;
 		}
 		if (cardNum == "172") {
-			twitterMessage = `${qtyString}Curio Card 17b (misprint) sold for ${totalPriceString} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/0x04AfA589E2b933f9463C5639f412b183Ec062505/${cardNum}`;
+			twitterMessage = `${qtyString}Curio Card 17b (misprint) sold for ${totalPriceString} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/ethereum/0x04AfA589E2b933f9463C5639f412b183Ec062505/${cardNum}`;
 		} else {
-			twitterMessage = `${qtyString}Curio Card ${cardNum} sold for ${totalPriceString} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/${cardNum}`;
+			twitterMessage = `${qtyString}Curio Card ${cardNum} sold for ${totalPriceString} ${token} ${totalPriceUsdString}${platformString}\n\nhttps://opensea.io/assets/ethereum/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/${cardNum}`;
 		}
 
 		mediaIds = [await uploadMedia(twitterClient, cardNum)];
