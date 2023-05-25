@@ -121,7 +121,7 @@ describe("Formatter", function () {
 	describe("formatTwitterMessage()", function () {
 		it("should format single sales correctly", async function () {
 			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, singleSale);
-			const expectedMessage = `Curio Card 10 sold for 0.30 ETH ($611) on OpenSea!\n\nhttps://opensea.io/assets/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/10`;
+			const expectedMessage = `Curio Card 10 sold for 0.30 ETH ($611) on OpenSea!\n\nhttps://opensea.io/assets/ethereum/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/10`;
 
 			assert.equal(expectedMessage, twitterMessage);
 			assert.equal(mediaIds.length, 1);
@@ -131,7 +131,7 @@ describe("Formatter", function () {
 
 		it("should format single sales (with >1 quantity) correctly", async function () {
 			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, singleSaleMultipleQty);
-			const expectedMessage = `23x Curio Card 9 sold for 7.50 ETH ($15,272) on OpenSea!\n\nhttps://opensea.io/assets/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/9`;
+			const expectedMessage = `23x Curio Card 9 sold for 7.50 ETH ($15,272) on OpenSea!\n\nhttps://opensea.io/assets/ethereum/0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313/9`;
 
 			assert.equal(expectedMessage, twitterMessage);
 			assert.equal(mediaIds.length, 1);
@@ -141,7 +141,7 @@ describe("Formatter", function () {
 
 		it("should format 17b single sales correctly", async function () {
 			const [twitterMessage, mediaIds] = await formatTwitterMessage(mockTwitterClient, singleSale17b);
-			const expectedMessage = `Curio Card 17b (misprint) sold for 1.40 ETH ($2,851) on OpenSea!\n\nhttps://opensea.io/assets/0x04AfA589E2b933f9463C5639f412b183Ec062505/172`;
+			const expectedMessage = `Curio Card 17b (misprint) sold for 1.40 ETH ($2,851) on OpenSea!\n\nhttps://opensea.io/assets/ethereum/0x04AfA589E2b933f9463C5639f412b183Ec062505/172`;
 
 			assert.equal(expectedMessage, twitterMessage);
 			assert.equal(mediaIds.length, 1);
