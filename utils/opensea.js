@@ -6,7 +6,10 @@ const getUsername = async address => {
     return new Promise((resolve, reject) => {
         axios({
             method: 'get',
-            url: `https://api.opensea.io/user/${address}`
+            url: `https://api.opensea.io/user/${address}`,
+            headers: {
+              'X-API-KEY': process.env.OPENSEA_API_KEY
+            }
           })
         .then(function (response) {
             if(response.data.username != null) {
