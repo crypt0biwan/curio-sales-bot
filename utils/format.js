@@ -1,5 +1,5 @@
 const COLORS = require('./colors')
-const { getUsername, openSeaClient } = require('./opensea')
+const { getUsername } = require('./opensea')
 
 const getImageURL = _card => {
 	const card = parseInt(_card)
@@ -27,7 +27,7 @@ const formatValue = (value, decimals = 2, style = 'decimal') =>
 		maximumFractionDigits: decimals,
 	}).format(value)
 
-const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
+const formatDiscordMessage = async (openSeaClient, { data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
 	const buyerUsername = await getUsername(openSeaClient, buyer)
 	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(openSeaClient, seller)
 

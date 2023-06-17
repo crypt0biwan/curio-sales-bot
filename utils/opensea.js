@@ -16,8 +16,6 @@ const getUsername = async (os, address) => {
         os(address)
             .then(function (response) {
                 if (response.data.username != null) {
-                    console.log(response.data.username)
-                    console.log(response.data.account.user.username)
                     resolve(response.data.account.user.username)
                 } else {
                     resolve(formatETHaddress(address))

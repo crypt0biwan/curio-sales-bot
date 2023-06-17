@@ -2,11 +2,44 @@ const { formatDiscordMessage, formatTwitterMessage } = require('../utils/format'
 
 const mockTwitterClient = {
 	v1: {
-		uploadMedia: async function(cardPath) {
+		uploadMedia: async function (cardPath) {
 			console.log("mocked uploadMedia(): " + cardPath)
 			return "unit-test";
 		}
 	}
+}
+
+const mockOpenSeaClient = (address) => {
+	return new Promise((resolve, reject) => {
+		if (address == "0x2757476cd6a9efeb748e2f0c747d7b3c7002219b")
+			resolve({
+				data: {
+					username: "mockUsername",
+					account: {
+						user: {
+							username: "mockUsername"
+						}
+					}
+				}
+			});
+		else if (address == "0xf481db34ed8844ce98ce339c5fd01ef8d4261955")
+			resolve({
+				data: {
+					username: "mockUsername2",
+					account: {
+						user: {
+							username: "mockUsername2"
+						}
+					}
+				}
+			});
+		else
+			resolve({
+				data: {
+					username: null,
+				}
+			});
+	});
 }
 
 const assert = require("assert");
@@ -18,7 +51,7 @@ const singleSale = {
 	seller: '0xf481db34ed8844ce98ce339c5fd01ef8d4261955',
 	ethPrice: 2036.2552894003065,
 	token: 'ETH',
-	platforms: [ 'OpenSea' ]
+	platforms: ['OpenSea']
 };
 
 const singleSale17b = {
@@ -28,7 +61,7 @@ const singleSale17b = {
 	seller: '0xf481db34ed8844ce98ce339c5fd01ef8d4261955',
 	ethPrice: 2036.2552894003065,
 	token: 'ETH',
-	platforms: [ 'OpenSea' ]
+	platforms: ['OpenSea']
 };
 
 const singleSaleMultipleQty = {
@@ -38,37 +71,37 @@ const singleSaleMultipleQty = {
 	seller: '0xf481db34ed8844ce98ce339c5fd01ef8d4261955',
 	ethPrice: 2036.2552894003065,
 	token: 'ETH',
-	platforms: [ 'OpenSea' ]
+	platforms: ['OpenSea']
 };
 
 const multiSale = {
-	data: { '9': 2, '10': 1, '11': 3},
+	data: { '9': 2, '10': 1, '11': 3 },
 	totalPrice: 1.24,
 	buyer: '0x2757476cd6a9efeb748e2f0c747d7b3c7002219b',
 	seller: '0xf481db34ed8844ce98ce339c5fd01ef8d4261955',
 	ethPrice: 2036.2552894003065,
 	token: 'ETH',
-	platforms: [ 'OpenSea' ]
+	platforms: ['OpenSea']
 };
 
 const multiSale17b = {
-	data: { '16': 1, '17': 2, '172': 3},
+	data: { '16': 1, '17': 2, '172': 3 },
 	totalPrice: 4,
 	buyer: '0x2757476cd6a9efeb748e2f0c747d7b3c7002219b',
 	seller: '0xf481db34ed8844ce98ce339c5fd01ef8d4261955',
 	ethPrice: 2036.2552894003065,
 	token: 'ETH',
-	platforms: [ 'OpenSea' ]
+	platforms: ['OpenSea']
 };
 
 const multiSaleWithMoreThan4 = {
-	data: { '9': 2, '10': 1, '11': 3, '12': 4, '13': 5, '14': 6},
+	data: { '9': 2, '10': 1, '11': 3, '12': 4, '13': 5, '14': 6 },
 	totalPrice: 10,
 	buyer: '0x2757476cd6a9efeb748e2f0c747d7b3c7002219b',
 	seller: '0xf481db34ed8844ce98ce339c5fd01ef8d4261955',
 	ethPrice: 2036.2552894003065,
 	token: 'ETH',
-	platforms: [ 'OpenSea' ]
+	platforms: ['OpenSea']
 };
 
 describe("Formatter", function () {
@@ -76,12 +109,12 @@ describe("Formatter", function () {
 
 	describe("formatDiscordMessage()", function () {
 		it("should format single sales correctly", async function () {
-			const discordMsg = await formatDiscordMessage(singleSale);
+			const discordMsg = await formatDiscordMessage(mockOpenSeaClient, singleSale);
 
 			assert.equal(discordMsg.username, 'CurioCard Sales')
 			assert.equal(discordMsg.embeds[0].author.name, 'Curio Cards')
 			assert.equal(discordMsg.embeds[0].title, 'Curio 10 has been sold')
-			assert.equal(discordMsg.embeds[0].description, 'Platform: **OpenSea**\nBuyer: **ASWMZ5**\nSeller: **johnveth2**\n---------------------------------')
+			assert.equal(discordMsg.embeds[0].description, 'Platform: **OpenSea**\nBuyer: **mockUsername**\nSeller: **mockUsername2**\n---------------------------------')
 			assert.equal(discordMsg.embeds[0].thumbnail.url, 'https://fafrd.github.io/curio-gallery/images/10.jpg')
 			assert.equal(discordMsg.embeds[0].color, '0x4bea1d')
 			assert.deepEqual(discordMsg.embeds[0].fields[0], {
@@ -97,12 +130,12 @@ describe("Formatter", function () {
 		});
 
 		it("should format 17b sales correctly", async function () {
-			const discordMsg = await formatDiscordMessage(singleSale17b);
+			const discordMsg = await formatDiscordMessage(mockOpenSeaClient, singleSale17b);
 
 			assert.equal(discordMsg.username, 'CurioCard Sales')
 			assert.equal(discordMsg.embeds[0].author.name, 'Curio Cards')
 			assert.equal(discordMsg.embeds[0].title, 'Curio 17b (misprint) has been sold')
-			assert.equal(discordMsg.embeds[0].description, 'Platform: **OpenSea**\nBuyer: **ASWMZ5**\nSeller: **johnveth2**\n---------------------------------')
+			assert.equal(discordMsg.embeds[0].description, 'Platform: **OpenSea**\nBuyer: **mockUsername**\nSeller: **mockUsername2**\n---------------------------------')
 			assert.equal(discordMsg.embeds[0].thumbnail.url, 'https://fafrd.github.io/curio-gallery/images/172.png')
 			assert.equal(discordMsg.embeds[0].color, '0x4bea1d')
 			assert.deepEqual(discordMsg.embeds[0].fields[0], {
