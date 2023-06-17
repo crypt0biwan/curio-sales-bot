@@ -3,30 +3,6 @@ const { getUsername } = require("../utils/opensea");
 
 const assert = require("assert");
 
-/* original
-
-
-
-const getUsername = async (os, address) => {
-	return new Promise((resolve, reject) => {
-		os(address)
-			.then(function (response) {
-				if (response.data.username != null) {
-					console.log(response.data.username)
-					console.log(response.data.account.user.username)
-					resolve(response.data.account.user.username)
-				} else {
-					resolve(formatETHaddress(address))
-				}
-			})
-			.catch(function (error) {
-				console.error(error);
-				resolve(formatETHaddress(address))
-			})
-	})
-}
-*/
-
 const mockOpenSeaClient = (address) => {
 	return new Promise((resolve, reject) => {
 		if (address == "0x49468f702436d1e590895ffa7155bcd393ce52ae")
