@@ -3,6 +3,28 @@ const { getUsername } = require("../utils/opensea");
 
 const assert = require("assert");
 
+const mockOpenSeaClient = (address) => {
+	return new Promise((resolve, reject) => {
+		if (address == "0x49468f702436d1e590895ffa7155bcd393ce52ae")
+			resolve({
+				data: {
+					username: "mockUsername",
+					account: {
+						user: {
+							username: "mockUsername"
+						}
+					}
+				}
+			});
+		else
+			resolve({
+				data: {
+					username: null,
+				}
+			});
+	});
+}
+
 describe("Watcher", function () {
 	this.timeout(10_000);
 
@@ -12,7 +34,7 @@ describe("Watcher", function () {
 			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
-			assert.deepEqual(transfer.data, {"10": 1})
+			assert.deepEqual(transfer.data, { "10": 1 })
 			assert.equal(transfer.totalPrice, 0.3);
 		});
 
@@ -21,7 +43,7 @@ describe("Watcher", function () {
 			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
-			assert.deepEqual(transfer.data, {"11": 5});
+			assert.deepEqual(transfer.data, { "11": 5 });
 			assert.equal(transfer.totalPrice, 2);
 		});
 
@@ -30,7 +52,7 @@ describe("Watcher", function () {
 			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
-			assert.deepEqual(transfer.data, {"172": 1});
+			assert.deepEqual(transfer.data, { "172": 1 });
 			assert.equal(transfer.totalPrice, 1.44999);
 		});
 
@@ -39,7 +61,7 @@ describe("Watcher", function () {
 			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
-			assert.deepEqual(transfer.data, {"4": 1})
+			assert.deepEqual(transfer.data, { "4": 1 })
 			assert.equal(transfer.totalPrice, 0.7100000000000001); // rounding error?
 		});
 	});
@@ -49,7 +71,7 @@ describe("Watcher", function () {
 			const details = await handleCurioTransfer({
 				transactionHash: '0x2ff57b685cab693d9123c2b5ab0a08d5597faab5e3a76e0adc87cc93634f0ede'
 			})
-			assert.deepEqual(details.data, {"10": 1, "12": 1, "15": 1})
+			assert.deepEqual(details.data, { "10": 1, "12": 1, "15": 1 })
 			assert.equal(details.totalPrice, 0.05)
 			assert.equal(details.token, "ETH")
 		})
@@ -97,7 +119,7 @@ describe("Watcher", function () {
 		});
 	});
 
-	describe("handleSeaportSales()", function() {
+	describe("handleSeaportSales()", function () {
 		it("should return the correct numbers for an ETH sale", async function () {
 			const details = await handleCurioTransfer({
 				transactionHash: '0x6c4f3f7a1ee7bccf446bf65f87b342160d8065658ac0e36a07f6c175464ea2f3'
@@ -117,7 +139,7 @@ describe("Watcher", function () {
 		})
 	})
 
-	describe("handleSeaport_1_5_Sales()", function() {
+	describe("handleSeaport_1_5_Sales()", function () {
 		it("should return the correct numbers for an ETH sale", async function () {
 			const details = await handleCurioTransfer({
 				transactionHash: '0xeddfb3b22b48550e4d26f3ce4d4a4330c5960eb013447aa770b3ce71595108e7'
@@ -141,13 +163,13 @@ describe("Watcher", function () {
 
 	describe("getOpenseaUsername()", function () {
 		it("should correctly find the username corresponding to ETH address 0x49468f702436d1e590895ffa7155bcd393ce52ae", async function () {
-			const username = await getUsername("0x49468f702436d1e590895ffa7155bcd393ce52ae");
+			const username = await getUsername(mockOpenSeaClient, "0x49468f702436d1e590895ffa7155bcd393ce52ae");
 
-			assert.equal(username, "crypt0biwan");
+			assert.equal(username, "mockUsername");
 		});
 
 		it("should correctly return a formatted ETH address when there's no username available", async function () {
-			const username = await getUsername("0xbebf173c83ad4c877c04592de0c38567abf66526");
+			const username = await getUsername(mockOpenSeaClient, "0xbebf173c83ad4c877c04592de0c38567abf66526");
 
 			assert.equal(username, "0xbeb...526");
 		});

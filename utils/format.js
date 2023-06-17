@@ -13,7 +13,7 @@ const getImageURL = _card => {
 		cardURL = `${card}.gif`
 	} else {
 		cardURL = `${card}.jpg`
-	}	
+	}
 
 	return cardURL
 }
@@ -27,10 +27,10 @@ const formatValue = (value, decimals = 2, style = 'decimal') =>
 		maximumFractionDigits: decimals,
 	}).format(value)
 
-const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
-	const buyerUsername = await getUsername(buyer)
-	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(seller)
-	
+const formatDiscordMessage = async (openSeaClient, { data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
+	const buyerUsername = await getUsername(openSeaClient, buyer)
+	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(openSeaClient, seller)
+
 	let quantities = []
 	for (const [card, qty] of Object.entries(data)) {
 		if (card == "172") {
@@ -43,10 +43,10 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 	const card = cards[0];
 
 	const contract = (card == "172") ? "0x04AfA589E2b933f9463C5639f412b183Ec062505" : "0x73DA73EF3a6982109c4d5BDb0dB9dd3E3783f313";
-	const url = 
+	const url =
 		platforms[0] === 'LooksRare'
-		? `https://looksrare.org/collections/${contract}/${card}`
-		: `https://opensea.io/assets/ethereum/${contract}/${card}`;
+			? `https://looksrare.org/collections/${contract}/${card}`
+			: `https://opensea.io/assets/ethereum/${contract}/${card}`;
 	let fields = [
 		{
 			name: 'Quantity',
@@ -62,7 +62,7 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 
 	let title = "";
 	if (cards.length > 1) {
-		if(cards.includes("172")) {
+		if (cards.includes("172")) {
 			cards.splice(cards.indexOf("172"), 1, "CRO17b (misprint)");
 		}
 		title = `Curios ${cards.join(", ")} have been sold`;
@@ -74,7 +74,7 @@ const formatDiscordMessage = async ({ data, totalPrice, buyer, seller, ethPrice,
 		}
 	}
 
-	if(['ETH', 'WETH'].includes(token)) {
+	if (['ETH', 'WETH'].includes(token)) {
 		fields.push({
 			name: 'USD',
 			value: formatValue(parseFloat(totalPrice * ethPrice), 0),
@@ -116,7 +116,7 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 
 	if (Object.keys(data).length == 1) {
 		let totalPriceUsdString = "";
-		if(['ETH', 'WETH'].includes(token)) {
+		if (['ETH', 'WETH'].includes(token)) {
 			totalPriceUsdString = `(${formatValue(totalPrice * ethPrice, 0, 'currency')}) `;
 		}
 
@@ -142,7 +142,7 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 		mediaIds = [await uploadMedia(twitterClient, cardNum)];
 	} else {
 		let qtyString = Object.entries(data).map(q => {
-			if(q[0] == "172") {
+			if (q[0] == "172") {
 				return `${q[1]}x Curio 17b (misprint)`;
 			} else {
 				return `${q[1]}x Curio ${q[0]}`;
@@ -150,7 +150,7 @@ const formatTwitterMessage = async (twitterClient, { data, totalPrice, buyer, se
 		}).join('\n');
 
 		let totalPriceUsdString = "";
-		if(['ETH', 'WETH'].includes(token)) {
+		if (['ETH', 'WETH'].includes(token)) {
 			totalPriceUsdString = `(${formatValue(totalPrice * ethPrice, 0, 'currency')})`;
 		}
 
