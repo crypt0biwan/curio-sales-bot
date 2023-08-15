@@ -4,7 +4,7 @@ const formatETHaddress = address => address.slice(0, 5) + '...' + address.slice(
 
 openSeaClient = async (address) => axios({
     method: 'get',
-    url: `https://api.opensea.io/user/${address}`,
+    url: `https://api.opensea.io/api/v1/user/${address}`,
     headers: {
         'X-API-KEY': process.env.OPENSEA_API_KEY
     }
