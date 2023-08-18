@@ -10,7 +10,7 @@ const {
 	TWITTER_API_KEY, TWITTER_API_KEY_SECRET, TWITTER_ACCESS_TOKEN_KEY, TWITTER_ACCESS_TOKEN_SECRET
 } = process.env;
 
-//const webhookClient = new WebhookClient({ id: DISCORD_ID, token: DISCORD_TOKEN });
+const webhookClient = new WebhookClient({ id: DISCORD_ID, token: DISCORD_TOKEN });
 //const _twitterClient = new TwitterApi({
 //	appKey: TWITTER_API_KEY,
 //	appSecret: TWITTER_API_KEY_SECRET,
