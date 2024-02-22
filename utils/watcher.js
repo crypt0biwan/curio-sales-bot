@@ -141,25 +141,31 @@ async function handleCurioTransfer(tx) {
 		for (let log of seaportLogRaw) {
 			let seaportLog = seaportContract.interface.parseLog(log);
 
-			if(tokenTransfers.length) {
-				totalPrice += parseFloat(Ethers.utils.formatUnits(seaportLog.args.offer[0].amount.toBigInt(), decimals))
-			} else {
-				// regular ETH buy
+			// added a try/catch, the event OrdersMatched apparently failed here
+			try {
+				if(tokenTransfers.length) {
+					totalPrice += parseFloat(Ethers.utils.formatUnits(seaportLog.args.offer[0].amount.toBigInt(), decimals))
+				} else {
+					// regular ETH buy
 
-				// OrderFulfilled(bytes32 orderHash,address offerer,address zone,address recipient,(uint8 itemType,address token,uint256 identifier,uint256 amount)[],(uint8 itemType,address token,uint256 identifier,uint256 amount,address recipient)[])
-				// OrderFulfilled(bytes32,address,address,address,(uint8,address,uint256,uint256)[],(uint8,address,uint256,uint256,address)[])
-				// method 0x9d9af8e3
+					// OrderFulfilled(bytes32 orderHash,address offerer,address zone,address recipient,(uint8 itemType,address token,uint256 identifier,uint256 amount)[],(uint8 itemType,address token,uint256 identifier,uint256 amount,address recipient)[])
+					// OrderFulfilled(bytes32,address,address,address,(uint8,address,uint256,uint256)[],(uint8,address,uint256,uint256,address)[])
+					// method 0x9d9af8e3
 
-				try {
-					// get the transfers of the last argument of the OrderFulfilled method
-					for(let transfer of seaportLog.args[seaportLog.args.length-1]) {
-						totalPrice += parseFloat(Ethers.utils.formatEther(Ethers.BigNumber.from(transfer.amount, 'hex')))
+					try {
+						// get the transfers of the last argument of the OrderFulfilled method
+						for(let transfer of seaportLog.args[seaportLog.args.length-1]) {
+							totalPrice += parseFloat(Ethers.utils.formatEther(Ethers.BigNumber.from(transfer.amount, 'hex')))
+						}
+					} catch(e) {
+						// added some logging since the bot crashes no a rare occasion
+						console.log(e)
+						console.log(log)
 					}
-				} catch(e) {
-					// added some logging since the bot crashes no a rare occasion
-					console.log(e)
-					console.log(log)
 				}
+			} catch(e) {
+				console.log(e)
+				console.log(`Unable to parse log with logIndex: ${log.logIndex} of tx ${lastTx}`)
 			}
 		}
 	}
