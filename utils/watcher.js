@@ -18,8 +18,9 @@ const erc20TokenAbi = require("../abis/ERC20Token.json");
 const OPENSEA_SEAPORT_CONTRACT_1_2 = "0x00000000006c3852cbef3e08e8df289169ede581"
 const OPENSEA_SEAPORT_CONTRACT_1_4 = "0x00000000000001ad428e4906ae43d8f9852d0dd6"
 const OPENSEA_SEAPORT_CONTRACT_1_5 = "0x00000000000000adc04c56bf30ac9d3c0aaf14dc"
+const OPENSEA_SEAPORT_CONTRACT_1_6 = "0x0000000000000068f116a894984e2db1123eb395"
 const seaportAbi = require("../abis/SeaPort.json");
-const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT_1_5, seaportAbi, provider);
+const seaportContract = new Ethers.Contract(OPENSEA_SEAPORT_CONTRACT_1_6, seaportAbi, provider);
 
 const CURIO_WRAPPER_CONTRACT = "0x73da73ef3a6982109c4d5bdb0db9dd3e3783f313";
 const CURIO_17B_WRAPPER_CONTRACT = "0x04afa589e2b933f9463c5639f412b183ec062505";
@@ -76,7 +77,12 @@ async function handleCurioTransfer(tx) {
 	});
 
 	let seaportLogRaw = txReceipt.logs.filter(x => {
-		return [OPENSEA_SEAPORT_CONTRACT_1_2, OPENSEA_SEAPORT_CONTRACT_1_4, OPENSEA_SEAPORT_CONTRACT_1_5].includes(x.address.toLowerCase())
+		return [
+			OPENSEA_SEAPORT_CONTRACT_1_2,
+			OPENSEA_SEAPORT_CONTRACT_1_4,
+			OPENSEA_SEAPORT_CONTRACT_1_5,
+			OPENSEA_SEAPORT_CONTRACT_1_6
+		].includes(x.address.toLowerCase())
 	});
 
 	let looksRareLogRaw = txReceipt.logs.filter(x => {
