@@ -17,8 +17,6 @@ const CURIO_17B_WRAPPER_CONTRACT = "0x04afa589e2b933f9463c5639f412b183ec062505";
 const curioAbi = require("../abis/CurioERC1155Wrapper.json");
 const curioContract = new Ethers.Contract(CURIO_WRAPPER_CONTRACT, curioAbi, provider);
 const curio17bContract = new Ethers.Contract(CURIO_17B_WRAPPER_CONTRACT, curioAbi, provider);
-const curioEventFilter = curioContract.filters.TransferSingle();
-const curio17bEventFilter = curio17bContract.filters.TransferSingle();
 
 const LOOKSRARE_CONTRACT = "0x59728544b08ab483533076417fbbb2fd0b17ce3a"
 const looksAbi = require("../abis/LooksRare.json");
@@ -34,12 +32,12 @@ const getEthUsdPrice = async () => await uniswapContract()
 
 // this is a helper for the unit test
 async function getCurioEventsFromBlock(blockNum) {
-	return await curioContract.queryFilter(curioEventFilter, fromBlock=blockNum, toBlock=blockNum);
+	return await curioContract.queryFilter(curioContract.filters.TransferSingle(), fromBlock=blockNum, toBlock=blockNum);
 }
 
 // this is a helper for the unit test
 async function getCurio17bEventsFromBlock(blockNum) {
-	return await curio17bContract.queryFilter(curio17bEventFilter, fromBlock=blockNum, toBlock=blockNum);
+	return await curio17bContract.queryFilter(curio17bContract.filters.TransferSingle(), fromBlock=blockNum, toBlock=blockNum);
 }
 
 let lastTx;
@@ -172,20 +170,20 @@ async function handleCurioTransfer(tx) {
 }
 
 function watchForTransfers(transferHandler) {
-	provider.on(curioEventFilter, async (log) => {
-		try {
-			const transfer = await handleCurioTransfer(log);
-			if (transfer.data) {
-				transferHandler(transfer);
-			}
-		} catch (e) {
-			console.error(e);
-		}
-	});
+    curioContract.on(curioContract.filters.TransferSingle(), async (_operator, _from, _to, _id, _value, event) => {
+        try {
+            const transfer = await handleCurioTransfer(event.log);
+            if (transfer.data) {
+                transferHandler(transfer);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    });
 
-	provider.on(curio17bEventFilter, async (log) => {
+	curio17bContract.on(curio17bContract.filters.TransferSingle(), async (_operator, _from, _to, _id, _value, event) => {
 		try {
-			const transfer = await handleCurioTransfer(log);
+			const transfer = await handleCurioTransfer(event.log);
 			if (transfer.data) {
 				transferHandler(transfer);
 			}
