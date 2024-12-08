@@ -2,11 +2,14 @@ const Ethers = require("ethers");
 require('dotenv').config()
 const { INFURA_PROJECT_ID, INFURA_SECRET } = process.env
 
+console.log(INFURA_PROJECT_ID, INFURA_SECRET)
+
 // set up provider
-const provider = new Ethers.providers.InfuraProvider("homestead", {
-	projectId: INFURA_PROJECT_ID,
-	projectSecret: INFURA_SECRET
-});
+const provider = new Ethers.InfuraProvider(
+	network="mainnet",
+	projectId=INFURA_PROJECT_ID,
+	projectSecret=INFURA_SECRET
+);
 
 // contract addresses should be lowercase
 const OPENSEA_CONTRACT = "0x7f268357a8c2552623316e2562d90e642bb538e5";
@@ -43,14 +46,14 @@ const getEthUsdPrice = async () => await uniswapContract()
 const curioEventFilter = {
 	address: CURIO_WRAPPER_CONTRACT,
 	topics: [
-		Ethers.utils.id("TransferSingle(address,address,address,uint256,uint256)")
+		Ethers.id("TransferSingle(address,address,address,uint256,uint256)")
 	]
 };
 
 const curio17bEventFilter = {
 	address: CURIO_17B_WRAPPER_CONTRACT,
 	topics: [
-		Ethers.utils.id("TransferSingle(address,address,address,uint256,uint256)")
+		Ethers.id("TransferSingle(address,address,address,uint256,uint256)")
 	]
 };
 
@@ -88,8 +91,8 @@ async function handleCurioTransfer(tx) {
 
 	let looksRareLogRaw = txReceipt.logs.filter(x => {
 		return [
-			Ethers.utils.keccak256(Ethers.utils.toUtf8Bytes('TakerBid(bytes32,uint256,address,address,address,address,address,uint256,uint256,uint256)')),
-			Ethers.utils.keccak256(Ethers.utils.toUtf8Bytes('TakerAsk(bytes32,uint256,address,address,address,address,address,uint256,uint256,uint256)'))
+			Ethers.keccak256(Ethers.toUtf8Bytes('TakerBid(bytes32,uint256,address,address,address,address,address,uint256,uint256,uint256)')),
+			Ethers.keccak256(Ethers.toUtf8Bytes('TakerAsk(bytes32,uint256,address,address,address,address,address,uint256,uint256,uint256)'))
 		].includes(x.topics[0])
 	});
 
@@ -104,7 +107,7 @@ async function handleCurioTransfer(tx) {
 		platforms.push("OpenSea")
 		// Check if related token transfers instead of a regular ETH buy
 		let tokenTransfers = txReceipt.logs.filter(x => {
-			return x.topics.includes(Ethers.utils.keccak256(Ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)')))
+			return x.topics.includes(Ethers.keccak256(Ethers.toUtf8Bytes('Transfer(address,address,uint256)')))
 		});
 		// ERC20 token buy
 		let decimals;
@@ -120,10 +123,10 @@ async function handleCurioTransfer(tx) {
 			let wyvernLog = wyvernContract.interface.parseLog(log);
 
 			if(tokenTransfers.length) {
-				totalPrice += parseFloat(Ethers.utils.formatUnits(wyvernLog.args.price.toBigInt(), decimals))
+				totalPrice += parseFloat(Ethers.formatUnits(wyvernLog.args.price.toBigInt(), decimals))
 			} else {
 				// regular ETH buy
-				totalPrice += parseFloat(Ethers.utils.formatEther(wyvernLog.args.price.toBigInt()));
+				totalPrice += parseFloat(Ethers.formatEther(wyvernLog.args.price.toBigInt()));
 			}
 		}
 	}
@@ -133,7 +136,7 @@ async function handleCurioTransfer(tx) {
 		platforms.push("OpenSea")
 		// Check if related token transfers instead of a regular ETH buy
 		let tokenTransfers = txReceipt.logs.filter(x => {
-			return x.topics.includes(Ethers.utils.keccak256(Ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)')))
+			return x.topics.includes(Ethers.keccak256(Ethers.toUtf8Bytes('Transfer(address,address,uint256)')))
 		});
 		// ERC20 token buy
 		let decimals;
@@ -151,7 +154,7 @@ async function handleCurioTransfer(tx) {
 			// added a try/catch, the event OrdersMatched apparently failed here
 			try {
 				if(tokenTransfers.length) {
-					totalPrice += parseFloat(Ethers.utils.formatUnits(seaportLog.args.offer[0].amount.toBigInt(), decimals))
+					totalPrice += parseFloat(Ethers.formatUnits(seaportLog.args.offer[0].amount.toBigInt(), decimals))
 				} else {
 					// regular ETH buy
 
@@ -162,7 +165,7 @@ async function handleCurioTransfer(tx) {
 					try {
 						// get the transfers of the last argument of the OrderFulfilled method
 						for(let transfer of seaportLog.args[seaportLog.args.length-1]) {
-							totalPrice += parseFloat(Ethers.utils.formatEther(Ethers.BigNumber.from(transfer.amount, 'hex')))
+							totalPrice += parseFloat(Ethers.formatEther(Ethers.BigNumber.from(transfer.amount, 'hex')))
 						}
 					} catch(e) {
 						// added some logging since the bot crashes no a rare occasion
@@ -182,7 +185,7 @@ async function handleCurioTransfer(tx) {
 		platforms.push("LooksRare")
 		for (let log of looksRareLogRaw) {
 			let looksLog = looksContract.interface.parseLog(log);
-			totalPrice += parseFloat(Ethers.utils.formatEther(looksLog.args.price.toBigInt()));
+			totalPrice += parseFloat(Ethers.formatEther(looksLog.args.price.toBigInt()));
 		}
 		token = 'WETH'
 	}
