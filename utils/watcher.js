@@ -166,7 +166,7 @@ async function handleCurioTransfer(tx) {
 		sales.push(`${qty}x CRO${card}`)
 	}
 
-	totalPrice = totalPrice.toFixed(2) // round to 2 decimals
+	totalPrice = totalPrice.toFixed(3) // round to 3 decimals
 	console.log(`Found curio sale: ${sales.join(", ")} sold for ${totalPrice} ${token}`)
 	return { data, totalPrice, buyer, seller, ethPrice, token, platforms };
 }

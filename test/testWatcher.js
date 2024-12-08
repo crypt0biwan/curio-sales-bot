@@ -35,7 +35,7 @@ describe("Watcher", function () {
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, { "10": 1 })
-			assert.equal(transfer.totalPrice, 0.18);
+			assert.equal(transfer.totalPrice, 0.180);
 		});
 
 		it("should correctly find the 2x card 3 transfer in block 21318928", async function () {
@@ -44,7 +44,7 @@ describe("Watcher", function () {
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, { "3": 2 });
-			assert.equal(transfer.totalPrice, 0.28);
+			assert.equal(transfer.totalPrice, 0.280);
 		});
 
 		it("should correctly find the 1x card transfer 17b in block 15877962", async function () {
@@ -53,7 +53,7 @@ describe("Watcher", function () {
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, { "172": 1 });
-			assert.equal(transfer.totalPrice, 1.45);
+			assert.equal(transfer.totalPrice, 1.450);
 		});
 
 		it("should correctly find the single card 4 transfer in block 16771782 (seaport 1.4)", async function () {
@@ -62,7 +62,7 @@ describe("Watcher", function () {
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, { "4": 1 })
-			assert.equal(transfer.totalPrice, 0.71);
+			assert.equal(transfer.totalPrice, 0.710);
 		});
 	});
 
@@ -72,7 +72,7 @@ describe("Watcher", function () {
 				transactionHash: '0x85be82de90fb3cd167c3c5a67e4d42bb9fd291fe62aba6064ffd96676da4f1b7'
 			})
 			assert.deepEqual(details.data, { "10": 2, "7": 1, "11": 1, "20": 1 })
-			assert.equal(details.totalPrice, 0.71)
+			assert.equal(details.totalPrice, 0.713)
 			assert.equal(details.token, "ETH")
 		})
 	})
@@ -97,7 +97,7 @@ describe("Watcher", function () {
 			})
 
 			assert.equal(details.token, "ETH");
-			assert.equal(details.totalPrice, "0.50");
+			assert.equal(details.totalPrice, "0.500");
 		})
 
 		it("should return the correct numbers for a WETH sale", async function () {
@@ -106,7 +106,7 @@ describe("Watcher", function () {
 			})
 
 			assert.equal(details.token, "WETH");
-			assert.equal(details.totalPrice, "0.32");
+			assert.equal(details.totalPrice, "0.320");
 		})
 	})
 
@@ -117,7 +117,7 @@ describe("Watcher", function () {
 			})
 
 			assert.equal(details.token, "ETH");
-			assert.equal(details.totalPrice, "0.15");
+			assert.equal(details.totalPrice, "0.155");
 		})
 	})
 
@@ -128,7 +128,7 @@ describe("Watcher", function () {
 			})
 
 			assert.equal(details.token, "WETH");
-			assert.equal(details.totalPrice, "19.25");
+			assert.equal(details.totalPrice, "19.250");
 		})
 	})
 
