@@ -1,7 +1,11 @@
 const Ethers = require("ethers");
 require('dotenv').config()
-const { RPC_URL } = process.env
-const provider = new Ethers.JsonRpcProvider(RPC_URL);
+let rpc_url = process.env.RPC_URL
+if (!rpc_url) {
+	console.warn("No RPC_URL provided, falling back to default");
+	rpc_url = "https://eth.llamarpc.com";
+}
+const provider = new Ethers.JsonRpcProvider(rpc_url);
 
 // contract addresses should be lowercase
 const OPENSEA_SEAPORT_CONTRACT_1_2 = "0x00000000006c3852cbef3e08e8df289169ede581"
@@ -109,13 +113,13 @@ async function handleCurioTransfer(tx) {
 							totalPrice += parseFloat(Ethers.formatEther(transfer.amount, 'hex'))
 						}
 					} catch(e) {
-						console.log(e)
-						console.log(log)
+						console.warn(e)
+						console.warn(log)
 					}
 				}
 			} catch(e) {
-				console.log(e)
-				console.log(`Unable to parse log with logIndex: ${log.logIndex} of tx ${lastTx}`)
+				console.warn(e)
+				console.warn(`Unable to parse log with logIndex: ${log.logIndex} of tx ${lastTx}`)
 			}
 		}
 	}
