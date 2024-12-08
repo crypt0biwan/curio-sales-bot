@@ -45,11 +45,11 @@ async function getCurio17bEventsFromBlock(blockNum) {
 }
 
 let lastTx;
-async function handleCurioTransfer(tx) {
-	console.log(`Found Curio transfer in tx ${tx.transactionHash}`);
-	let txReceipt = await provider.getTransactionReceipt(tx.transactionHash);
-	if (lastTx === tx.transactionHash) return {}; // Transaction already seen
-	lastTx = tx.transactionHash
+async function handleCurioTransfer(eventLog) {
+	console.log(`Found Curio transfer in tx ${eventLog.transactionHash}`);
+	let txReceipt = await provider.getTransactionReceipt(eventLog.transactionHash);
+	if (lastTx === eventLog.transactionHash) return {}; // Transaction already seen
+	lastTx = eventLog.transactionHash
 	let totalPrice = 0
 	let token = 'ETH'
 	let platforms = []
@@ -175,8 +175,8 @@ async function handleCurioTransfer(tx) {
 
 function watchForTransfers(transferHandler) {
     curioContract.on(curioContract.filters.TransferSingle(), async (_from, _to, _id, _value, event) => {
+		console.log(`args: ${_from}, ${_to}, ${_id}, ${_value}`);
 		console.log(`Found Curio transfer in tx ${event.transactionHash}`);
-		console.log(`args: ${_from}, ${_to}, ${_id}, ${_value}, ${event}`);
 
         try {
             const transfer = await handleCurioTransfer(event.log);
