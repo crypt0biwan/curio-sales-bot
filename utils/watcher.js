@@ -66,6 +66,7 @@ async function getCurio17bEventsFromBlock(blockNum) {
 
 let lastTx;
 async function handleCurioTransfer(tx) {
+	console.log(`Found Curio transfer in tx ${tx.transactionHash}`);
 	let txReceipt = await provider.getTransactionReceipt(tx.transactionHash);
 	if (lastTx === tx.transactionHash) return {}; // Transaction already seen
 	lastTx = tx.transactionHash
