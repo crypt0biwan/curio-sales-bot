@@ -28,9 +28,11 @@ const formatValue = (value, decimals = 2, style = 'decimal') =>
 	}).format(value)
 
 const formatDiscordMessage = async (openSeaClient, { data, totalPrice, buyer, seller, ethPrice, token, platforms }) => {
+	console.log("Fetching username for buyer and seller");
 	const buyerUsername = await getUsername(openSeaClient, buyer)
 	const sellerUsername = (seller === "Multiple") ? "Multiple" : await getUsername(openSeaClient, seller)
 
+	console.log("Formatting Discord message");
 	let quantities = []
 	for (const [card, qty] of Object.entries(data)) {
 		if (card == "172") {
@@ -100,7 +102,7 @@ const formatDiscordMessage = async (openSeaClient, { data, totalPrice, buyer, se
 				timestamp: new Date()
 			}
 		]
-	}
+	};
 }
 
 async function uploadMedia(twitterClient, _card) {
