@@ -174,10 +174,7 @@ async function handleCurioTransfer(eventLog) {
 }
 
 function watchForTransfers(transferHandler) {
-    curioContract.on(curioContract.filters.TransferSingle(), async (_from, _to, _id, _value, event) => {
-		console.log(`args: ${_from}, ${_to}, ${_id}, ${_value}`);
-		console.log(`Found Curio transfer in tx ${event.transactionHash}`);
-
+    curioContract.on(curioContract.filters.TransferSingle(), async (event) => {
         try {
             const transfer = await handleCurioTransfer(event.log);
             if (transfer.data) {
@@ -188,7 +185,7 @@ function watchForTransfers(transferHandler) {
         }
     });
 
-	curio17bContract.on(curio17bContract.filters.TransferSingle(), async (_from, _to, _id, _value, event) => {
+	curio17bContract.on(curio17bContract.filters.TransferSingle(), async (event) => {
 		try {
 			const transfer = await handleCurioTransfer(event.log);
 			if (transfer.data) {
