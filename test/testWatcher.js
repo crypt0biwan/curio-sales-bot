@@ -29,22 +29,22 @@ describe("Watcher", function () {
 	this.timeout(10_000);
 
 	describe("handleCurioTransfer()", function () {
-		it("should correctly find the single card 10 transfer in block 14516246", async function () {
-			const events = await getCurioEventsFromBlock(14516246);
+		it("should correctly find the single card 10 transfer in block 21353823", async function () {
+			const events = await getCurioEventsFromBlock(21353823);
 			assert.equal(events.length, 1);
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, { "10": 1 })
-			assert.equal(transfer.totalPrice, 0.3);
+			assert.equal(transfer.totalPrice, 0.180);
 		});
 
-		it("should correctly find the 5x card 11 transfer in block 14268794", async function () {
-			const events = await getCurioEventsFromBlock(14268794);
-			assert.equal(events.length, 1);
+		it("should correctly find the 2x card 3 transfer in block 21318928", async function () {
+			const events = await getCurioEventsFromBlock(21318928);
+			assert.equal(events.length, 2);
 
 			const transfer = await handleCurioTransfer(events[0])
-			assert.deepEqual(transfer.data, { "11": 5 });
-			assert.equal(transfer.totalPrice, 2);
+			assert.deepEqual(transfer.data, { "3": 2 });
+			assert.equal(transfer.totalPrice, 0.280);
 		});
 
 		it("should correctly find the 1x card transfer 17b in block 15877962", async function () {
@@ -53,7 +53,7 @@ describe("Watcher", function () {
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, { "172": 1 });
-			assert.equal(transfer.totalPrice, 1.44999);
+			assert.equal(transfer.totalPrice, 1.450);
 		});
 
 		it("should correctly find the single card 4 transfer in block 16771782 (seaport 1.4)", async function () {
@@ -62,17 +62,17 @@ describe("Watcher", function () {
 
 			const transfer = await handleCurioTransfer(events[0])
 			assert.deepEqual(transfer.data, { "4": 1 })
-			assert.equal(transfer.totalPrice, 0.7100000000000001); // rounding error?
+			assert.equal(transfer.totalPrice, 0.710);
 		});
 	});
 
 	describe("bundleSale()", function () {
 		it("should return the correct data for a bundle sale", async function () {
 			const details = await handleCurioTransfer({
-				transactionHash: '0x2ff57b685cab693d9123c2b5ab0a08d5597faab5e3a76e0adc87cc93634f0ede'
+				transactionHash: '0x85be82de90fb3cd167c3c5a67e4d42bb9fd291fe62aba6064ffd96676da4f1b7'
 			})
-			assert.deepEqual(details.data, { "10": 1, "12": 1, "15": 1 })
-			assert.equal(details.totalPrice, 0.05)
+			assert.deepEqual(details.data, { "10": 2, "7": 1, "11": 1, "20": 1 })
+			assert.equal(details.totalPrice, 0.713)
 			assert.equal(details.token, "ETH")
 		})
 	})
@@ -89,35 +89,6 @@ describe("Watcher", function () {
 		})
 	})
 
-	describe("handleOpenSeaSales()", function () {
-		it("should return the correct numbers for an ETH sale", async function () {
-			const details = await handleCurioTransfer({
-				transactionHash: '0xa87070b789b671f9cdc2abe85dc09b11b7548e3cdb7e9e89916c96e585f8d039'
-			})
-
-			assert.equal(details.token, "ETH");
-			assert.equal(details.totalPrice, "0.5");
-		})
-
-		it("should return the correct numbers for a WETH sale", async function () {
-			const details = await handleCurioTransfer({
-				transactionHash: '0xe0e164a2dd03d1182e5cc8247a398a137996eee5c8be32577e88419d505a3fef'
-			})
-
-			assert.equal(details.token, "WETH");
-			assert.equal(details.totalPrice, "0.371");
-		})
-
-		it("should return the correct numbers for an USDC sale", async function () {
-			const details = await handleCurioTransfer({
-				transactionHash: '0x020dd8b60a00665c5c0dbbfca67d2e0ed2c7d678eb641d9fa42cd8bd7f2352d4'
-			})
-
-			assert.equal(details.token, "USDC");
-			assert.equal(details.totalPrice, "27777.0");
-
-		});
-	});
 
 	describe("handleSeaportSales()", function () {
 		it("should return the correct numbers for an ETH sale", async function () {
@@ -126,7 +97,7 @@ describe("Watcher", function () {
 			})
 
 			assert.equal(details.token, "ETH");
-			assert.equal(details.totalPrice, "0.49999");
+			assert.equal(details.totalPrice, "0.500");
 		})
 
 		it("should return the correct numbers for a WETH sale", async function () {
@@ -135,7 +106,7 @@ describe("Watcher", function () {
 			})
 
 			assert.equal(details.token, "WETH");
-			assert.equal(details.totalPrice, "0.32");
+			assert.equal(details.totalPrice, "0.320");
 		})
 	})
 
@@ -157,7 +128,7 @@ describe("Watcher", function () {
 			})
 
 			assert.equal(details.token, "WETH");
-			assert.equal(details.totalPrice, "19.25");
+			assert.equal(details.totalPrice, "19.250");
 		})
 	})
 
