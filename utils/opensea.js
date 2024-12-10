@@ -4,7 +4,7 @@ const formatETHaddress = address => address.slice(0, 5) + '...' + address.slice(
 
 openSeaClient = async (address) => axios({
     method: 'get',
-    url: `https://api.opensea.io/api/v1/user/${address}`,
+    url: `https://api.opensea.io/api/v2/accounts/${address}`,
     headers: {
         'X-API-KEY': process.env.OPENSEA_API_KEY
     }
@@ -15,8 +15,8 @@ const getUsername = async (os, address) => {
     return new Promise((resolve, reject) => {
         os(address)
             .then(function (response) {
-                if (response.data.username != null) {
-                    resolve(response.data.account.user.username)
+                if (response.data.username) {
+                    resolve(response.data.username)
                 } else {
                     resolve(formatETHaddress(address))
                 }

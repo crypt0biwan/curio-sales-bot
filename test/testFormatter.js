@@ -14,23 +14,27 @@ const mockOpenSeaClient = (address) => {
 		if (address == "0x2757476cd6a9efeb748e2f0c747d7b3c7002219b")
 			resolve({
 				data: {
-					username: "mockUsername",
-					account: {
-						user: {
-							username: "mockUsername"
-						}
-					}
+					"address": "0x2757476cd6a9efeb748e2f0c747d7b3c7002219b",
+					"username": "mockUsername",
+					"profile_image_url": "",
+					"banner_image_url": "",
+					"website": "",
+					"social_media_accounts": [],
+					"bio": "",
+					"joined_date": "2019-12-14"
 				}
 			});
 		else if (address == "0xf481db34ed8844ce98ce339c5fd01ef8d4261955")
 			resolve({
 				data: {
-					username: "mockUsername2",
-					account: {
-						user: {
-							username: "mockUsername2"
-						}
-					}
+					"address": "0xf481db34ed8844ce98ce339c5fd01ef8d4261955",
+					"username": "mockUsername2",
+					"profile_image_url": "",
+					"banner_image_url": "",
+					"website": "",
+					"social_media_accounts": [],
+					"bio": "",
+					"joined_date": "2019-12-14"
 				}
 			});
 		else
