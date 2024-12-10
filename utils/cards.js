@@ -1,34 +1,34 @@
-const images = []
-
-images['CRO1'] = 'QmZGrL7HrUmkLuUxp7NV4n1H8tHkurmBAdsx8jzJp4v1tn'
-images['CRO2'] = 'QmR1PfBWWNwku1Ywshyn3iwhM5oVMm9rvgPj1EFUd34ZzY'
-images['CRO3'] = 'QmZ74F1trdUaKksS2YkScXxD7zDkSrrmnMX6wTusAXYeYz'
-images['CRO4'] = 'QmdZ8JZZAWfWcLRnXvccBdXTJ6KwiaHMU8wEB1tRcYRK9E'
-images['CRO5'] = 'QmQX4o64AoNhBdvsn77rYLNaeHsiY62Cqschoqok3ebAim'
-images['CRO6'] = 'QmNQJq8zLphvPmGbcKopUqioFF1tED3ykPdQjR7KXCQxVn'
-images['CRO7'] = 'QmRexYVZTDq5pnqukVia99jPUv19M9RRg53B87aueFfLYD'
-images['CRO8'] = 'QmT1qiYcVQuR4Zqqkdj3auDBULhDqstxqMBZRLCm67G19J'
-images['CRO9'] = 'QmWSGCGTt5tJUquaTmi2cezM5VfDju3LPhRqQKKJbmSNzL'
-images['CRO10'] = 'QmZUUXdi4cWsJVKLBYW4SyFz6rj4Ftp5SDU9CQLny9crnD'
-images['CRO11'] = 'QmWUpgvfRY1PLQ7ZehAsoMz9nptKde1huidWbqz5Nxd3gi'
-images['CRO12'] = 'Qmcard2X4E71TjJCEUgy1B9HpuciBqv7Q4TM9VR5F9DQ4d'
-images['CRO13'] = 'QmdzhK28Uama6xJstZZbTRh8RPT2dbT4dBoxjdAaC6gN7N'
-images['CRO14'] = 'QmaSnfjfwzzxfuLSV4xwbYy3UkHEEKupPrxYDgyCYTD46R'
-images['CRO15'] = 'QmdzQMqmW2tVSezd9odrbAwvXy8Gx43K3rfG9rtcVaZk5v'
-images['CRO16'] = 'Qmf1STAkk5yoDsBHw8ncxQT5T6ZBH6hk2ri8oj8AaB73yt'
-images['CRO17'] = 'QmY2qTLrNmUvwVyKQF1JFqxSyZPtDH9cBo4CteLY3mtUYb'
-images['CRO18'] = 'QmajPpYuqQVasd9AzTYUaDrPW6nzjigY91evEUDoNiuefW'
-images['CRO19'] = 'QmTKfVeZFaqawgoayTLqgYdfaxabGNkoXrS9FjZBHeqoui'
-images['CRO20'] = 'QmS19CRKqSLDNcs6gEhs28W8qMUmd44DiDbZoR2Dd5cwpc'
-images['CRO21'] = 'QmVyhSDjwRi8WAeR1M8C8w2oEVNnvubdoLSkempio5UkBV'
-images['CRO22'] = 'QmNTGskeNwg4JA31YkavEd1wRMpXWas6Cd1qGdmVTaHnX1'
-images['CRO23'] = 'QmZy6RuSuADSErzpWAoMkbBNanrvPLmAz4pwNxu9RKmnAC'
-images['CRO24'] = 'QmSzLBMA2xwX3usGb7PpNQpFR8Ca2aRGA8Ef21Z1jxWdrM'
-images['CRO25'] = 'QmehM1Q3AWhAQjLoX4v7qEHK3gMumu9YrhTE784f5Uw6XT'
-images['CRO26'] = 'QmZjuWa7igycc85i11tE46VMGYhP64g5JX95zVyZkePBar'
-images['CRO27'] = 'QmZ4zQtN2PNEw3jMkjvTF1qQaTKYpvPpAdGYMnrAjpnPvW'
-images['CRO28'] = 'QmYcTX1xpFYiDGSQsjXWm4v1QkjWjDij8zUHHXbz32MLGt'
-images['CRO29'] = 'QmTa5bXZUnQyN2BvjhuUcNzGvhxkwvhUDZ3CgGsyzNukoL'
-images['CRO30'] = 'QmZH7MZK6XGELZNhHre2LJiBcXFpsi1wzhmx1MGcApahnD'
+const images = {
+    CRO1:  'QmZGrL7HrUmkLuUxp7NV4n1H8tHkurmBAdsx8jzJp4v1tn',
+    CRO2:  'QmR1PfBWWNwku1Ywshyn3iwhM5oVMm9rvgPj1EFUd34ZzY',
+    CRO3:  'QmZ74F1trdUaKksS2YkScXxD7zDkSrrmnMX6wTusAXYeYz',
+    CRO4:  'QmdZ8JZZAWfWcLRnXvccBdXTJ6KwiaHMU8wEB1tRcYRK9E',
+    CRO5:  'QmQX4o64AoNhBdvsn77rYLNaeHsiY62Cqschoqok3ebAim',
+    CRO6:  'QmNQJq8zLphvPmGbcKopUqioFF1tED3ykPdQjR7KXCQxVn',
+    CRO7:  'QmRexYVZTDq5pnqukVia99jPUv19M9RRg53B87aueFfLYD',
+    CRO8:  'QmT1qiYcVQuR4Zqqkdj3auDBULhDqstxqMBZRLCm67G19J',
+    CRO9:  'QmWSGCGTt5tJUquaTmi2cezM5VfDju3LPhRqQKKJbmSNzL',
+    CRO10: 'QmZUUXdi4cWsJVKLBYW4SyFz6rj4Ftp5SDU9CQLny9crnD',
+    CRO11: 'QmWUpgvfRY1PLQ7ZehAsoMz9nptKde1huidWbqz5Nxd3gi',
+    CRO12: 'Qmcard2X4E71TjJCEUgy1B9HpuciBqv7Q4TM9VR5F9DQ4d',
+    CRO13: 'QmdzhK28Uama6xJstZZbTRh8RPT2dbT4dBoxjdAaC6gN7N',
+    CRO14: 'QmaSnfjfwzzxfuLSV4xwbYy3UkHEEKupPrxYDgyCYTD46R',
+    CRO15: 'QmdzQMqmW2tVSezd9odrbAwvXy8Gx43K3rfG9rtcVaZk5v',
+    CRO16: 'Qmf1STAkk5yoDsBHw8ncxQT5T6ZBH6hk2ri8oj8AaB73yt',
+    CRO17: 'QmY2qTLrNmUvwVyKQF1JFqxSyZPtDH9cBo4CteLY3mtUYb',
+    CRO18: 'QmajPpYuqQVasd9AzTYUaDrPW6nzjigY91evEUDoNiuefW',
+    CRO19: 'QmTKfVeZFaqawgoayTLqgYdfaxabGNkoXrS9FjZBHeqoui',
+    CRO20: 'QmS19CRKqSLDNcs6gEhs28W8qMUmd44DiDbZoR2Dd5cwpc',
+    CRO21: 'QmVyhSDjwRi8WAeR1M8C8w2oEVNnvubdoLSkempio5UkBV',
+    CRO22: 'QmNTGskeNwg4JA31YkavEd1wRMpXWas6Cd1qGdmVTaHnX1',
+    CRO23: 'QmZy6RuSuADSErzpWAoMkbBNanrvPLmAz4pwNxu9RKmnAC',
+    CRO24: 'QmSzLBMA2xwX3usGb7PpNQpFR8Ca2aRGA8Ef21Z1jxWdrM',
+    CRO25: 'QmehM1Q3AWhAQjLoX4v7qEHK3gMumu9YrhTE784f5Uw6XT',
+    CRO26: 'QmZjuWa7igycc85i11tE46VMGYhP64g5JX95zVyZkePBar',
+    CRO27: 'QmZ4zQtN2PNEw3jMkjvTF1qQaTKYpvPpAdGYMnrAjpnPvW',
+    CRO28: 'QmYcTX1xpFYiDGSQsjXWm4v1QkjWjDij8zUHHXbz32MLGt',
+    CRO29: 'QmTa5bXZUnQyN2BvjhuUcNzGvhxkwvhUDZ3CgGsyzNukoL',
+    CRO30: 'QmZH7MZK6XGELZNhHre2LJiBcXFpsi1wzhmx1MGcApahnD'
+}
 
 module.exports = exports = images
