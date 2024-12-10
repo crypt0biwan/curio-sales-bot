@@ -1,4 +1,3 @@
-const COLORS = require('./colors')
 const { getUsername } = require('./opensea')
 
 const getImageURL = _card => {
@@ -97,7 +96,7 @@ const formatDiscordMessage = async (openSeaClient, { data, totalPrice, buyer, se
 				thumbnail: {
 					url: `https://fafrd.github.io/curio-gallery/images/${getImageURL(card)}`
 				},
-				color: COLORS.GREEN,
+				color: 4975133, // #4bea1d
 				fields,
 				timestamp: new Date()
 			}
