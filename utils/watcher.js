@@ -96,7 +96,11 @@ async function handleCurioTransfer(eventLog) {
 		for (let log of seaportLogRaw) {
 			let seaportLog = seaportContract.interface.parseLog(log);
 
-			// added a try/catch, the event OrdersMatched apparently failed here
+			// parseLog returns null for events not in our ABI (e.g. OrdersMatched on Seaport 1.4+).
+			// Only OrderFulfilled carries the price, so skip anything else quietly.
+			if (!seaportLog) continue;
+			if (seaportLog.name !== "OrderFulfilled") continue;
+
 			try {
 				if (tokenTransfers.length) {
 					totalPrice += parseFloat(Ethers.formatUnits(seaportLog.args.offer[0].amount, decimals))
