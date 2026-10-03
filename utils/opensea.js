@@ -1,4 +1,5 @@
 const axios = require('axios')
+const { describeError } = require('./errors')
 
 const formatETHaddress = address => address.slice(0, 5) + '...' + address.slice(address.length - 3, address.length)
 
@@ -22,7 +23,8 @@ const getUsername = async (os, address) => {
                 }
             })
             .catch(function (error) {
-                console.error(error);
+                // not the raw error: it includes the request headers with the OpenSea API key
+                console.error(`OpenSea username lookup failed for ${address}: ${describeError(error)}`);
                 resolve(formatETHaddress(address))
             })
     })

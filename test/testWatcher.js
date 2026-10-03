@@ -66,6 +66,17 @@ describe("Watcher", function () {
 		});
 	});
 
+	describe("retry of the same transaction", function () {
+		// the watcher retries handleCurioTransfer when it fails part-way (e.g. the ETH/USD
+		// price call), so handling the same tx a second time must still return the sale
+		it("returns the sale again when called twice for the same tx", async function () {
+			const log = { transactionHash: '0x85be82de90fb3cd167c3c5a67e4d42bb9fd291fe62aba6064ffd96676da4f1b7' };
+			await handleCurioTransfer(log);
+			const again = await handleCurioTransfer(log);
+			assert.deepEqual(again.data, { "10": 2, "7": 1, "11": 1, "20": 1 });
+		});
+	});
+
 	describe("bundleSale()", function () {
 		it("should return the correct data for a bundle sale", async function () {
 			const details = await handleCurioTransfer({

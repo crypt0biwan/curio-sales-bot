@@ -1,4 +1,5 @@
 const Ethers = require("ethers");
+const { describeError } = require("./errors");
 require('dotenv').config()
 let rpc_url = process.env.RPC_URL
 if (!rpc_url) {
@@ -48,7 +49,8 @@ let lastTx;
 async function handleCurioTransfer(eventLog) {
 	console.log(`Found Curio transfer in tx ${eventLog.transactionHash}`);
 	let txReceipt = await provider.getTransactionReceipt(eventLog.transactionHash);
-	if (lastTx === eventLog.transactionHash) return {}; // Transaction already seen
+	// no "already seen" check here: the watcher dedupes by tx hash, and it retries this
+	// function when it fails, so a retry of the same tx must not be skipped
 	lastTx = eventLog.transactionHash
 	let totalPrice = 0
 	let token = 'ETH'
@@ -117,12 +119,12 @@ async function handleCurioTransfer(eventLog) {
 							totalPrice += parseFloat(Ethers.formatEther(transfer.amount, 'hex'))
 						}
 					} catch(e) {
-						console.warn(e)
+						console.warn(describeError(e))
 						console.warn(log)
 					}
 				}
 			} catch(e) {
-				console.warn(e)
+				console.warn(describeError(e))
 				console.warn(`Unable to parse log with logIndex: ${log.logIndex} of tx ${lastTx}`)
 			}
 		}
@@ -177,28 +179,139 @@ async function handleCurioTransfer(eventLog) {
 	return { data, totalPrice, buyer, seller, ethPrice, token, platforms };
 }
 
-function watchForTransfers(transferHandler) {
-    curioContract.on(curioContract.filters.TransferSingle(), async (event) => {
-        try {
-            const transfer = await handleCurioTransfer(event.log);
-            if (transfer.data) {
-                transferHandler(transfer);
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    });
+const POLL_INTERVAL_MS = 15_000; // about one post-merge block every 12s
+const RESCAN_BLOCKS = 5; // re-read the last few blocks: late indexing, short reorgs, a node whose head goes back
+const MAX_BLOCK_RANGE = 1000; // catch up in chunks after a long outage
+const MAX_ATTEMPTS = 20; // retry a transaction that failed to process for ~5 minutes of working RPC
 
-	curio17bContract.on(curio17bContract.filters.TransferSingle(), async (event) => {
+// Watches for logs with stateless eth_getLogs queries over block ranges instead of
+// ethers' server-side filter (eth_newFilter + eth_getFilterChanges). RPC nodes like
+// Alchemy forget filters ("filter not found") and ethers v6 never recreates them, so
+// the bot kept running but silently stopped posting. Here every poll is a fresh query,
+// and the block cursor only advances after a successful query, so anything that
+// happened while the RPC was failing is picked up by the next successful poll.
+function createLogPoller({ provider, filter, onLog, intervalMs = POLL_INTERVAL_MS, maxBlockRange = MAX_BLOCK_RANGE, logger = console }) {
+	let startBlock = null; // block we started watching at; never scan at or below it
+	let lastBlock = null; // highest block scanned successfully; never goes back
+	let failures = 0;
+	let running = false;
+	let timer = null;
+	const seenTx = new Map(); // tx hash -> block, for every tx in blocks we may still rescan
+	const retryTx = new Map(); // tx hash -> { eventLog, attempts }, for txs whose onLog failed
+
+	async function handle(eventLog) {
+		const hash = eventLog.transactionHash;
 		try {
-			const transfer = await handleCurioTransfer(event.log);
-			if (transfer.data) {
-				transferHandler(transfer);
+			await onLog(eventLog);
+			retryTx.delete(hash);
+		} catch (e) {
+			const attempts = (retryTx.has(hash) ? retryTx.get(hash).attempts : 0) + 1;
+			if (attempts < MAX_ATTEMPTS) {
+				retryTx.set(hash, { eventLog, attempts });
+				if (attempts === 1) logger.error(`Watcher: failed to process tx ${hash}, will retry: ${describeError(e)}`);
+			} else {
+				retryTx.delete(hash);
+				// fixed prefix so a daily journal grep finds every sale that was never posted
+				logger.error(`SALE DROPPED after ${MAX_ATTEMPTS} attempts: ${hash}: ${describeError(e)}`);
+			}
+		}
+	}
+
+	async function tick() {
+		let fromBlock, toBlock;
+		try {
+			const head = await provider.getBlockNumber();
+			if (lastBlock === null) {
+				startBlock = lastBlock = head;
+			}
+			// If the head went back (reorg or a lagging node), this rescans up to that head,
+			// so replacement logs are found; rollbacks deeper than RESCAN_BLOCKS are not handled.
+			fromBlock = Math.max(startBlock + 1, lastBlock + 1 - RESCAN_BLOCKS);
+			toBlock = Math.min(head, lastBlock + maxBlockRange);
+			let logs = [];
+			// no new block: skip the scan, but still run the retries below
+			if (head !== lastBlock && fromBlock <= toBlock) {
+				logs = await provider.getLogs({ ...filter, fromBlock, toBlock });
+
+				if (failures > 0) {
+					logger.log(`Watcher: RPC recovered after ${failures} failed poll(s), rescanned blocks ${fromBlock}-${toBlock} for missed events`);
+					failures = 0;
+				}
+				lastBlock = Math.max(lastBlock, toBlock);
+			}
+
+			// retry earlier failures only now that the RPC is answering
+			for (const { eventLog } of [...retryTx.values()]) {
+				await handle(eventLog);
+			}
+			for (const eventLog of logs) {
+				// one post per transaction, even if it is seen again by a rescan
+				if (eventLog.removed || seenTx.has(eventLog.transactionHash)) continue;
+				seenTx.set(eventLog.transactionHash, eventLog.blockNumber);
+				await handle(eventLog);
+			}
+			// forget txs in blocks that will never be rescanned
+			for (const [hash, block] of seenTx) {
+				if (block <= lastBlock - RESCAN_BLOCKS) seenTx.delete(hash);
 			}
 		} catch (e) {
-			console.error(e);
+			failures++;
+			// log the first failure, then only occasionally, to avoid flooding the journal
+			if (failures === 1 || failures % 100 === 0) {
+				const range = (fromBlock === undefined) ? "" : ` (blocks ${fromBlock}-${toBlock})`;
+				logger.error(`Watcher: RPC poll failed${range}, ${failures} in a row, will retry: ${describeError(e)}`);
+			}
 		}
-	});
+	}
+
+	async function loop() {
+		await tick(); // never throws
+		if (running) timer = setTimeout(loop, intervalMs);
+	}
+
+	return {
+		tick,
+		start() {
+			if (running) return;
+			running = true;
+			loop();
+		},
+		stop() {
+			running = false;
+			clearTimeout(timer);
+		},
+		get seenTxCount() { return seenTx.size; },
+		get retryTxCount() { return retryTx.size; }
+	};
 }
 
-module.exports = { watchForTransfers, handleCurioTransfer, getCurioEventsFromBlock, getCurio17bEventsFromBlock };
+// TransferSingle on either Curio wrapper (both use the same ABI)
+const curioTransferFilter = {
+	address: [CURIO_WRAPPER_CONTRACT, CURIO_17B_WRAPPER_CONTRACT],
+	topics: [curioContract.interface.getEvent("TransferSingle").topicHash]
+};
+
+// options are for tests: { provider, handleTransfer, logger, intervalMs }
+function watchForTransfers(transferHandler, { handleTransfer = handleCurioTransfer, ...options } = {}) {
+	const logger = options.logger || console;
+	const poller = createLogPoller({
+		provider,
+		filter: curioTransferFilter,
+		onLog: async (eventLog) => {
+			// only chain reads so far, so a failure here is safely retried by the poller
+			const transfer = await handleTransfer(eventLog);
+			if (!transfer.data) return;
+			try {
+				await transferHandler(transfer);
+			} catch (e) {
+				// posting is not idempotent, so never retry it
+				logger.error(`Watcher: sale handler failed for tx ${eventLog.transactionHash}: ${describeError(e)}`);
+			}
+		},
+		...options
+	});
+	poller.start();
+	return poller;
+}
+
+module.exports = { watchForTransfers, createLogPoller, curioTransferFilter, MAX_ATTEMPTS, handleCurioTransfer, getCurioEventsFromBlock, getCurio17bEventsFromBlock };
